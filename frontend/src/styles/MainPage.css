@@ -1,0 +1,33 @@
+.main-page {
+    margin-top: 2px;
+}
+  
+  .banner-image {
+    left: 50%;
+    width: 100vw;
+    background-image: url('../resources/mainPageBanner.jpeg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 160px;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    max-width: 100vw;
+	position: relative;
+	right: 50%;
+    
+}
+  
+  .main-page h1 {
+    text-align: center;
+}
+  
+  .main-page p {
+    text-align: center;
+}
+  
+  .main-page Button {
+    display: block;
+    margin: 20px auto;
+}
+  
