@@ -3,6 +3,7 @@ import "../styles/ArticlePanel.css";
 import { Button, ButtonGroup, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import { AiFillLike } from "react-icons/ai";
 import { AiFillDislike } from "react-icons/ai";
+import { IoIosRefresh } from "react-icons/io";
 
 
 
@@ -40,6 +41,10 @@ const ArticlePanel = () => {
                                     <option value="2">Option 2</option>
                                 </Form.Select>
                             </Form.Group>
+                            <Form.Group className="my-4">
+                                <Form.Label>Number of sentences: </Form.Label>
+                                <Form.Control placeholder="e.g. 5" />
+                            </Form.Group>
                             <Button className="my-4">Generate summary</Button>
                         </Form>
                     </Col>
@@ -58,15 +63,16 @@ const ArticlePanel = () => {
                         <Container className="my-3">
                             <Form.Label className="my-0 me-3 fs-4">Rate summary: </Form.Label>
                             <ButtonGroup>
-                                <Button><AiFillLike /></Button>
-                                <Button><AiFillDislike /></Button>
+                                <Button className="me-1"><AiFillLike /></Button>
+                                <Button className="me-1"><AiFillDislike /></Button>
+                                <Button className="me-1"><IoIosRefresh /></Button>
                             </ButtonGroup>
                         </Container>
 
                     </Col>
                 </Row>
             </Container>
-            {generatedSummary && (
+            {/* {generatedSummary && (
                 <div className="summary">
                     <h3>Generated Summary:</h3>
                     <p>{generatedSummary}</p>
@@ -76,7 +82,7 @@ const ArticlePanel = () => {
                     </div>
                     <button onClick={handleSubmit}>Regenerate Summary</button>
                 </div>
-            )}
+            )} */}
         </>
 
     );
