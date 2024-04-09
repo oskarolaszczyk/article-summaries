@@ -7,6 +7,7 @@ import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
 import ProfilePanel from "./components/ProfilePanel";
 import ArticlePanel from "./components/ArticlePanel";
+import AdminPanel from './components/AdminPanel';
 
 
 
@@ -19,6 +20,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/profile" element={<ProfilePanel />} />
+        <Route path="/admin" element={<AdminPanel />} />
         <Route path="/article_panel" element={<ArticlePanel />} />
       </Routes>
       <AppFooter/>
