@@ -9,7 +9,7 @@ import logiInLogo from "../resources/logIn.svg";
 
 export default function AppNavbar() {
   return (
-      <Navbar expand="md" className="navbar">
+      <Navbar expand="lg" className="navbar">
         <Navbar.Brand>
           <Nav.Link to="/" as={NavLink} className="nav-link ms-2" activeclassname="active">
             <div className="d-flex align-items-center">
