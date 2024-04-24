@@ -11,16 +11,71 @@ const ArticlePanel = () => {
     const [articleUrl, setArticleUrl] = useState('');
     const [selectedModel, setSelectedModel] = useState('');
     const [generatedSummary, setGeneratedSummary] = useState('');
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        // Perform summary generation logic based on articleUrl and selectedModel
-        // Update generatedSummary state
-    };
+    const [numSentences, setNumSentences] = useState(10);
 
     const handleRating = (rating) => {
         // Logic to handle summary rating (good/bad)
         // Optionally, regenerate the summary
+    };
+
+    const handleNumSentences = (event) => {
+        const val = event.target.value;
+        if (/^[0-9]*$/.test(val)) setNumSentences(val);
+    };
+
+    const handleUrlChange = (event) => {
+        setArticleUrl(event.target.value);
+    };
+
+    const fetchArticle = async () => {
+        try {
+            console.log(articleUrl);
+            const response = await fetch(articleUrl, {
+                method: 'GET',
+                headers: {
+                    'Origin': 'http://localhost:3000',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            console.log(response);
+            const data = await response.text();
+            console.log(data);
+            return data;
+        } catch (error) {
+            console.error('Error fetching article: ', error);
+        }
+    };
+
+    const generateSummary = async (articleText) => {
+        const formdata = new FormData();
+        formdata.append("key", "6ab8b38872f2bdf4f12b0c9476ffbe8c");
+        formdata.append("txt", articleText);
+        formdata.append("sentences", numSentences);
+
+        const requestOptions = {
+            method: 'POST',
+            body: formdata,
+            redirect: 'follow'
+        };
+
+        try {
+            const response = await fetch("https://api.meaningcloud.com/summarization-1.0", requestOptions);
+            const json = await response.json();
+            setGeneratedSummary(json.summary);
+        } catch (error) {
+            console.log('error', error);
+        }
+    }
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const articleText = await fetchArticle();
+        if (articleText) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(articleText, "text/html");
+            const text = doc.querySelector('main').textContent;
+            await generateSummary(text.replace(/<[^>]+>/gi, '').replace(/[^\ ]+:\/\/[^\ ]+/gi, ''));
+        }
     };
 
     return (
@@ -28,10 +83,15 @@ const ArticlePanel = () => {
             <Container fluid className="d-flex mx-0">
                 <Row className="container-fluid py-4" >
                     <Col lg={4}>
-                        <Form>
+                        <Form onSubmit={handleSubmit}>
                             <Form.Group className="my-4">
                                 <Form.Label>Article URL: </Form.Label>
-                                <Form.Control placeholder="URL" />
+                                <Form.Control
+                                    type="url"
+                                    placeholder="URL"
+                                    value={articleUrl}
+                                    onChange={handleUrlChange}
+                                />
                             </Form.Group>
                             <Form.Group className="my-4">
                                 <Form.Label>Select AI model: </Form.Label>
@@ -43,9 +103,14 @@ const ArticlePanel = () => {
                             </Form.Group>
                             <Form.Group className="my-4">
                                 <Form.Label>Number of sentences: </Form.Label>
-                                <Form.Control placeholder="e.g. 5" />
+                                <Form.Control
+                                    type="text"
+                                    placeholder="e.g. 5"
+                                    value={numSentences}
+                                    onChange={handleNumSentences}
+                                />
                             </Form.Group>
-                            <Button className="my-4">Generate summary</Button>
+                            <Button type="submit" className="my-4">Generate summary</Button>
                         </Form>
                     </Col>
                     <Col lg={8}>
@@ -54,10 +119,8 @@ const ArticlePanel = () => {
                                 <Card.Title className="display-5 mx-3">Summary</Card.Title>
                                 <hr />
                                 <Card.Text className="summary-box px-3 my-3 fs-5">
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                                    eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                                    {generatedSummary}
                                 </Card.Text>
-
                             </Card>
                         </Container>
                         <Container className="my-3">
