@@ -1,0 +1,51 @@
+.navbar {
+    background-color: violet;
+}
+
+.nav-link {
+    position: relative;
+}
+
+.nav-link.active .nav-link-text {
+    color: lemonchiffon;
+}
+
+.nav-link.active .icon-container {
+    background-color: floralwhite;
+}
+
+.nav-link-text {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-family: 'Roboto', sans-serif;
+    transition: color 0.4s;
+}
+
+.brand-text {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+  
+.icon-container {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(243, 81, 221);
+    border-radius: 50%;
+    padding: 10px;
+    transition: background-color 0.4s;
+}
+
+.icon-container:hover {
+    background-color: rgb(245, 161, 245);
+}
+  
+.nav-link:hover .nav-link-text,
+.nav-link:hover .icon-container {
+    color: floralwhite;
+    
+}
+
+.nav-link:hover .icon-container {
+    background-color: rgb(245, 161, 245);
+}
