@@ -5,6 +5,7 @@ from flask_jwt_extended import (
     jwt_required,
     jwt_refresh_token_required,
     get_jwt_identity,
+    unset_jwt_cookies,
 )
 from article_summaries.models import db, User
 from article_summaries import bcrypt
@@ -83,6 +84,13 @@ def refresh():
     return jsonify(
         {"access_token": new_access_token, "refresh_token": new_refresh_token}
     )
+
+
+@auth_bp.route("/logout", methods=["POST"])
+def logout():
+    response = jsonify({"message": "Logout successful."})
+    unset_jwt_cookies(response)
+    return response
 
 
 @auth_bp.route("/protected", methods=["GET"])
