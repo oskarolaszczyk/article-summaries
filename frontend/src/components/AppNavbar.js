@@ -1,13 +1,21 @@
-import Navbar from 'react-bootstrap/Navbar';
+import React, { useContext } from "react";
 import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
 import { NavLink } from 'react-router-dom';
-import "../styles/AppNavbar.css";
-import logo from "../resources/logo.svg";
 import generateLogo from "../resources/generate.svg";
-import profileLogo from "../resources/profile.svg";
 import logiInLogo from "../resources/logIn.svg";
+import logo from "../resources/logo.svg";
+import profileLogo from "../resources/profile.svg";
+import "../styles/AppNavbar.css";
+import { AuthContext } from "./AuthContext";
 
 export default function AppNavbar() {
+  const { isLoggedIn, logout } = useContext(AuthContext);
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/login';
+  };
+  
   return (
       <Navbar expand="lg" className="navbar">
         <Navbar.Brand>
@@ -72,7 +80,11 @@ export default function AppNavbar() {
                   height="58"
                   className="d-inline-block icon-container"
                 />
-                <span className="mx-3 nav-link-text">Log In</span>
+                {isLoggedIn ? (
+                  <span className="mx-3 nav-link-text" onClick={handleLogout}>Log Out</span>
+                ) : (
+                  <span className="mx-3 nav-link-text">Log In</span>
+                )}
               </div>
             </Nav.Link>
           </Nav>
