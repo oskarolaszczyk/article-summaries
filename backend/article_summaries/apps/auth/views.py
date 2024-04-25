@@ -1,5 +1,11 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    jwt_required,
+    jwt_refresh_token_required,
+    get_jwt_identity,
+)
 from article_summaries.models import db, User
 from article_summaries import bcrypt
 from sqlalchemy import or_
@@ -63,6 +69,20 @@ def login():
     refresh_token = create_refresh_token(identity=user.id)
 
     return jsonify({"access_token": access_token, "refresh_token": refresh_token})
+
+
+@auth_bp.route("/refresh", methods=["POST"])
+@jwt_refresh_token_required()
+def refresh():
+    current_user = get_jwt_identity()
+    user = User.query.get(current_user)
+
+    new_access_token = create_access_token(identity=user.id)
+    new_refresh_token = create_refresh_token(identity=user.id)
+
+    return jsonify(
+        {"access_token": new_access_token, "refresh_token": new_refresh_token}
+    )
 
 
 @auth_bp.route("/protected", methods=["GET"])
