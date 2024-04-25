@@ -1,13 +1,13 @@
-import {Route, Routes} from 'react-router';
+import { Route, Routes } from 'react-router';
 
-import AppNavbar from "./components/AppNavbar";
-import AppFooter from "./components/AppFooter";
-import MainPage from "./components/MainPage";
-import LoginPage from "./components/LoginPage";
-import RegisterPage from "./components/RegisterPage";
-import ProfilePanel from "./components/ProfilePanel";
-import ArticlePanel from "./components/ArticlePanel";
 import AdminPanel from './components/AdminPanel';
+import AppFooter from "./components/AppFooter";
+import AppNavbar from "./components/AppNavbar";
+import ArticlePanel from "./components/ArticlePanel";
+import LoginPage from "./components/LoginPage";
+import MainPage from "./components/MainPage";
+import ProfilePanel from "./components/ProfilePanel";
+import RegisterPage from "./components/RegisterPage";
 
 
 
