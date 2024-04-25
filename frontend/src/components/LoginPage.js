@@ -17,20 +17,23 @@ export default function LoginPage() {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 
-	const handleLogin = async () => {
+	const handleLogin = async (event) => {
+		event.preventDefault();
 		try {
 			const response = await axios.post("http://127.0.0.1:8000/auth/login", {
 				username,
 				password,
 			});
-
+		
 			const { access_token, refresh_token, user } = response.data;
-
 			login(user, access_token, refresh_token);
+			window.location.href = "/";
 		} catch (error) {
 			console.error(error);
 		}
+
 	};
+	
 
 	return (
 		<Container fluid className="d-flex justify-content-center">

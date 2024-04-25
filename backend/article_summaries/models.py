@@ -20,3 +20,6 @@ class User(db.Model):
     password = db.Column(db.String(128), nullable=False)
     type = db.Column(db.Enum(UserType), default=UserType.USER, nullable=False)
     created_on = db.Column(db.DateTime, default=datetime.utcnow())
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}

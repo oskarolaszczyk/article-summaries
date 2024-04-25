@@ -16,6 +16,7 @@ class Config:
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=30)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
+    CORS_HEADERS = "Content-Type"
 
 
 class DevConfig(Config):

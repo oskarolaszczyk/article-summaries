@@ -1,5 +1,4 @@
 import { Route, Routes } from 'react-router';
-
 import AdminPanel from './components/AdminPanel';
 import AppFooter from "./components/AppFooter";
 import AppNavbar from "./components/AppNavbar";
@@ -8,8 +7,6 @@ import LoginPage from "./components/LoginPage";
 import MainPage from "./components/MainPage";
 import ProfilePanel from "./components/ProfilePanel";
 import RegisterPage from "./components/RegisterPage";
-
-
 
 function App() {
   return (

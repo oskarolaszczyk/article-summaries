@@ -48,17 +48,15 @@ def register():
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    login_name = request.json.get("login-name")
+    login_name = request.json.get("username")
     password = request.json.get("password")
 
     if not login_name or not password:
         return jsonify({"error": "No username or email or password provided."}), 400
 
-    user = (
-        User.query.filter(or_(User.username == login_name, User.email == login_name))
-        .with_entities(User.id, User.username, User.email, User.type)
-        .first()
-    )
+    user = User.query.filter(
+        or_(User.username == login_name, User.email == login_name)
+    ).first()
     if not user:
         return (
             jsonify({"error": "User with given credentials does not exist."}),
@@ -71,12 +69,15 @@ def login():
     access_token = create_access_token(identity=user.id)
     refresh_token = create_refresh_token(identity=user.id)
 
-    return jsonify(
-        {
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-            "user": user._asdict(),
-        }
+    return (
+        jsonify(
+            {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "user": {},
+            }
+        ),
+        200,
     )
 
 

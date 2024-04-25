@@ -1,6 +1,8 @@
-import { Container, Row, Col, Button, Card } from 'react-bootstrap';
+import React from 'react';
+import { Button, Card, Col, Container, Row } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
 import '../styles/MainPage.css';
+
 
 const MainPage = () => {
   return (

@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 
 const AuthContext = createContext({
   isLoggedIn: false,
@@ -15,11 +15,29 @@ const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
   const [refreshToken, setRefreshToken] = useState(null);
 
+  useEffect(() => {
+    // When the application starts, we check whether authentication data exists in localStorage
+    const storedUser = localStorage.getItem('user');
+    const storedAccessToken = localStorage.getItem('accessToken');
+    const storedRefreshToken = localStorage.getItem('refreshToken');
+    
+    if (storedUser && storedAccessToken && storedRefreshToken) {
+      setIsLoggedIn(true);
+      setUser(JSON.parse(storedUser));
+      setAccessToken(storedAccessToken);
+      setRefreshToken(storedRefreshToken);
+    }
+  }, []);
+
   const handleLogin = (userData, access_token, refresh_token) => {
     setIsLoggedIn(true);
     setUser(userData);
     setAccessToken(access_token);
     setRefreshToken(refresh_token);
+    
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('accessToken', access_token);
+    localStorage.setItem('refreshToken', refresh_token);
   };
 
   const handleLogout = () => {
@@ -27,6 +45,10 @@ const AuthProvider = ({ children }) => {
     setUser(null);
     setAccessToken(null);
     setRefreshToken(null);
+    
+    localStorage.removeItem('user');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
   };
 
   return (
