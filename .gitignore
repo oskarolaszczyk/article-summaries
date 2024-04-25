@@ -902,4 +902,8 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Summarizer data
+dataset.csv
+idf.json
+
 # End of https://www.toptal.com/developers/gitignore/api/pycharm,visualstudiocode,python,flask,macos,windows
