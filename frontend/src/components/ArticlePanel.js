@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { useState } from 'react';
 import "../styles/ArticlePanel.css";
 import { Button, ButtonGroup, Card, Col, Container, Form, Row } from 'react-bootstrap';
@@ -27,22 +28,16 @@ const ArticlePanel = () => {
         setArticleUrl(event.target.value);
     };
 
-    const fetchArticle = async () => {
+    const fetchArticleContent = async () => {
+        if (!articleUrl) return;
         try {
-            console.log(articleUrl);
-            const response = await fetch(articleUrl, {
-                method: 'GET',
-                headers: {
-                    'Origin': 'http://localhost:3000',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+            const response = await axios.get('http://127.0.0.1:5000/scrape', {
+                params: { url: articleUrl }
             });
-            console.log(response);
-            const data = await response.text();
-            console.log(data);
+            const data = response.data.content;
             return data;
         } catch (error) {
-            console.error('Error fetching article: ', error);
+            console.error('Error fetching article content: ', error);
         }
     };
 
@@ -52,16 +47,14 @@ const ArticlePanel = () => {
         formdata.append("txt", articleText);
         formdata.append("sentences", numSentences);
 
-        const requestOptions = {
-            method: 'POST',
-            body: formdata,
-            redirect: 'follow'
-        };
-
         try {
-            const response = await fetch("https://api.meaningcloud.com/summarization-1.0", requestOptions);
-            const json = await response.json();
-            setGeneratedSummary(json.summary);
+            const response = await axios.post("https://api.meaningcloud.com/summarization-1.0", formdata, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            const res = await response.data;
+            setGeneratedSummary(res.summary);
         } catch (error) {
             console.log('error', error);
         }
@@ -69,12 +62,9 @@ const ArticlePanel = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const articleText = await fetchArticle();
+        const articleText = await fetchArticleContent();
         if (articleText) {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(articleText, "text/html");
-            const text = doc.querySelector('main').textContent;
-            await generateSummary(text.replace(/<[^>]+>/gi, '').replace(/[^\ ]+:\/\/[^\ ]+/gi, ''));
+            await generateSummary(articleText);
         }
     };
 
@@ -88,7 +78,7 @@ const ArticlePanel = () => {
                                 <Form.Label>Article URL: </Form.Label>
                                 <Form.Control
                                     type="url"
-                                    placeholder="URL"
+                                    placeholder="Enter URL"
                                     value={articleUrl}
                                     onChange={handleUrlChange}
                                 />
@@ -135,17 +125,6 @@ const ArticlePanel = () => {
                     </Col>
                 </Row>
             </Container>
-            {/* {generatedSummary && (
-                <div className="summary">
-                    <h3>Generated Summary:</h3>
-                    <p>{generatedSummary}</p>
-                    <div className="rating-buttons">
-                        <button onClick={() => handleRating('good')}>Good</button>
-                        <button onClick={() => handleRating('bad')}>Bad</button>
-                    </div>
-                    <button onClick={handleSubmit}>Regenerate Summary</button>
-                </div>
-            )} */}
         </>
 
     );
