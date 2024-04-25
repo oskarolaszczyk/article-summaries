@@ -10,8 +10,12 @@ import "../styles/AppNavbar.css";
 import { AuthContext } from "./AuthContext";
 
 export default function AppNavbar() {
-  const { isLoggedIn } = useContext(AuthContext);
-
+  const { isLoggedIn, logout } = useContext(AuthContext);
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/login';
+  };
+  
   return (
       <Navbar expand="lg" className="navbar">
         <Navbar.Brand>
@@ -77,7 +81,7 @@ export default function AppNavbar() {
                   className="d-inline-block icon-container"
                 />
                 {isLoggedIn ? (
-                  <span className="mx-3 nav-link-text">Log Out</span>
+                  <span className="mx-3 nav-link-text" onClick={handleLogout}>Log Out</span>
                 ) : (
                   <span className="mx-3 nav-link-text">Log In</span>
                 )}
