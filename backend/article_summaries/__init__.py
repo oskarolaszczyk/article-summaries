@@ -20,8 +20,10 @@ def create_app():
 
     from article_summaries.apps.core.views import core_bp
     from article_summaries.apps.auth.views import auth_bp
+    from article_summaries.apps.summary.views import summary_bp
 
     app.register_blueprint(core_bp)
     app.register_blueprint(auth_bp, url_prefix="/auth")
+    app.register_blueprint(summary_bp, url_prefix="/summary")
 
     return app

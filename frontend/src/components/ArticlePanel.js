@@ -31,7 +31,7 @@ const ArticlePanel = () => {
     const fetchArticleContent = async () => {
         if (!articleUrl) return;
         try {
-            const response = await axios.get('http://127.0.0.1:5000/scrape', {
+            const response = await axios.get('http://127.0.0.1:8000/scrape', {
                 params: { url: articleUrl }
             });
             const data = response.data.content;
