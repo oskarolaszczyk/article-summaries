@@ -10,7 +10,7 @@ import { IoIosRefresh } from "react-icons/io";
 
 const ArticlePanel = () => {
     const [articleUrl, setArticleUrl] = useState('');
-    const [selectedModel, setSelectedModel] = useState('');
+    const [selectedModel, setSelectedModel] = useState('1');
     const [generatedSummary, setGeneratedSummary] = useState('');
     const [numSentences, setNumSentences] = useState(10);
 
@@ -28,10 +28,14 @@ const ArticlePanel = () => {
         setArticleUrl(event.target.value);
     };
 
+    const handleModelChange = (event) => {
+        setSelectedModel(event.target.value);
+    };
+
     const fetchArticleContent = async () => {
         if (!articleUrl) return;
         try {
-            const response = await axios.get('http://127.0.0.1:8000/scrape', {
+            const response = await axios.get('http://127.0.0.1:8000/article/scrape', {
                 params: { url: articleUrl }
             });
             const data = response.data.content;
@@ -42,21 +46,37 @@ const ArticlePanel = () => {
     };
 
     const generateSummary = async (articleText) => {
-        const formdata = new FormData();
-        formdata.append("key", "6ab8b38872f2bdf4f12b0c9476ffbe8c");
-        formdata.append("txt", articleText);
-        formdata.append("sentences", numSentences);
-
+        setGeneratedSummary("");
+        
         try {
-            const response = await axios.post("https://api.meaningcloud.com/summarization-1.0", formdata, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            let response;
+            if (selectedModel === "1") {
+                const formdata = new FormData();
+                formdata.append("key", "6ab8b38872f2bdf4f12b0c9476ffbe8c");
+                formdata.append("txt", articleText);
+                formdata.append("sentences", numSentences);
+                response = await axios.post("https://api.meaningcloud.com/summarization-1.0", formdata, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    },
+                    txt: articleText,
+                    sentences: numSentences
+                });
+            } else {
+                response = await axios.post("http://127.0.0.1:8000/summary/", {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    txt: articleText,
+                    sentences: numSentences
+                });
+            }
             const res = await response.data;
-            setGeneratedSummary(res.summary);
+            setGeneratedSummary(res.summary || "Summary could not be generated.");
+
         } catch (error) {
-            console.log('error', error);
+            console.error('Error generating summary:', error);
+            setGeneratedSummary("Error generating summary.");
         }
     }
 
@@ -85,10 +105,14 @@ const ArticlePanel = () => {
                             </Form.Group>
                             <Form.Group className="my-4">
                                 <Form.Label>Select AI model: </Form.Label>
-                                <Form.Select aria-label="Default select example">
+                                <Form.Select 
+                                    aria-label="Default select example" 
+                                    value={selectedModel}
+                                    onChange={handleModelChange}
+                                >
                                     <option>Open this select menu</option>
-                                    <option value="1">Option 1</option>
-                                    <option value="2">Option 2</option>
+                                    <option value="1">Meaninig Cloud model</option>
+                                    <option value="2">Our model</option>
                                 </Form.Select>
                             </Form.Group>
                             <Form.Group className="my-4">

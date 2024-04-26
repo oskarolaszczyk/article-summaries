@@ -81,7 +81,7 @@ def summarize(article, idf, num_of_sentences):
     sentences_ranked = {key: value
         for key, value in sorted(sentences_ranked.items(),
                                  key=lambda item: item[1])}
-    return ". ".join(list(sentences_ranked.keys())[:num_of_sentences]) + "."
+    return ". ".join(list(sentences_ranked.keys())[:int(num_of_sentences)]) + "."
 
 
 @summary_bp.route("/", methods=['POST'])

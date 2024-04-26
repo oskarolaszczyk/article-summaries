@@ -5,7 +5,7 @@ headers = { "Accept-Language": "pl,en-US;q=0.7,en;q=0.3" }
 goose = Goose({ "http_headers": headers })
 
 article_bp = Blueprint(
-            "auth_bp", __name__, template_folder="templates", static_folder="static"
+            "article_bp", __name__, template_folder="templates", static_folder="static"
 )
 
 @article_bp.route("/scrape", methods=['GET'])
