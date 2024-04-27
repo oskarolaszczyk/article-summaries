@@ -3,7 +3,6 @@ from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
     jwt_required,
-    # jwt_refresh_token_required,
     get_jwt_identity,
     unset_jwt_cookies,
 )
@@ -24,16 +23,13 @@ def register():
     password = request.json.get("password")
 
     if not username or not email or not password:
-        return jsonify({"error": "No username or email or password provided."}), 400
+        response_body = {"error": "No username or email or password provided."}
+        return jsonify(response_body), 400
 
     user = User.query.filter_by(username=username).first()
     if user:
-        return (
-            jsonify(
-                {"error": "User with given email address or username already exists."}
-            ),
-            400,
-        )
+        response_body = {"error": "User with given username already exists."}
+        return jsonify(response_body), 400
 
     new_user = User(
         username=username,
@@ -46,16 +42,13 @@ def register():
     access_token = create_access_token(identity=new_user.id)
     refresh_token = create_refresh_token(identity=new_user.id)
 
-    return (
-        jsonify(
-            {
-                "access_token": access_token,
-                "refresh_token": refresh_token,
-                "user": {},
-            }
-        ),
-        200,
-    )
+    response_body = {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "user": {},
+    }
+
+    return jsonify(response_body), 201
 
 
 @auth_bp.route("/login", methods=["POST"])
@@ -64,52 +57,46 @@ def login():
     password = request.json.get("password")
 
     if not login_name or not password:
-        return jsonify({"error": "No username or email or password provided."}), 400
+        response_body = {"error": "No username or email or password provided."}
+        return jsonify(response_body), 400
 
     user = User.query.filter(
         or_(User.username == login_name, User.email == login_name)
     ).first()
     if not user:
-        return (
-            jsonify({"error": "User with given credentials does not exist."}),
-            404,
-        )
+        response_body = {"error": "User with given credentials does not exist."}
+        return jsonify(response_body), 404
 
     if not bcrypt.check_password_hash(user.password, password):
-        return jsonify({"error": "Please check your login details and try again."}), 401
+        response_body = {"error": "Please check your login details and try again."}
+        return jsonify(response_body), 401
 
     access_token = create_access_token(identity=user.id)
     refresh_token = create_refresh_token(identity=user.id)
 
-    return (
-        jsonify(
-            {
-                "access_token": access_token,
-                "refresh_token": refresh_token,
-                "user": {},
-            }
-        ),
-        200,
-    )
+    response_body = {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "user": {},
+    }
+    return jsonify(response_body), 200
 
 
 @auth_bp.route("/refresh", methods=["POST"])
-# @jwt_refresh_token_required()
+@jwt_required(refresh=True)
 def refresh():
-    current_user = get_jwt_identity()
-    user = User.query.get(current_user)
+    identity = get_jwt_identity()
 
-    new_access_token = create_access_token(identity=user.id)
-    new_refresh_token = create_refresh_token(identity=user.id)
+    access_token = create_access_token(identity=identity)
+    refresh_token = create_refresh_token(identity=identity)
 
-    return jsonify(
-        {"access_token": new_access_token, "refresh_token": new_refresh_token}
-    )
+    response_body = {"access_token": access_token, "refresh_token": refresh_token}
+    return jsonify(response_body), 200
 
 
 @auth_bp.route("/logout", methods=["POST"])
 def logout():
-    response = jsonify({"message": "Logout successful."})
+    response = jsonify({"message": "Logout successful."}), 200
     unset_jwt_cookies(response)
     return response
 
