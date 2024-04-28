@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { createContext, useEffect, useState } from 'react';
 
 const AuthContext = createContext({
@@ -27,6 +28,8 @@ const AuthProvider = ({ children }) => {
       setAccessToken(storedAccessToken);
       setRefreshToken(storedRefreshToken);
       storedIsAdmin === 'true' ? setIsAdmin(true) : setIsAdmin(false);
+
+      axios.defaults.headers.common['Authorization'] = `Bearer ${storedAccessToken}`;
     }
   }, []);
 
@@ -40,6 +43,8 @@ const AuthProvider = ({ children }) => {
     localStorage.setItem('accessToken', access_token);
     localStorage.setItem('refreshToken', refresh_token);
     localStorage.setItem('isAdmin', is_admin);
+
+    axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
   };
 
   const handleLogout = () => {
@@ -51,6 +56,8 @@ const AuthProvider = ({ children }) => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('isAdmin');
+
+    delete axios.defaults.headers.common["Authorization"];
   };
 
   return (

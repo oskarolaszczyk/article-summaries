@@ -1,9 +1,9 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
-
 from article_summaries.models import db, User, UserType
+from article_summaries.apps.auth.blocklist import BLOCKLIST
 
 jwt = JWTManager()
 bcrypt = Bcrypt()
@@ -17,6 +17,19 @@ def create_app():
     jwt.init_app(app)
     bcrypt.init_app(app)
     CORS(app, origins="http://localhost:3000")
+
+    @jwt.token_in_blocklist_loader
+    def check_if_token_in_blocklist(jwt_header, jwt_payload):
+        return jwt_payload["jti"] in BLOCKLIST
+
+    @jwt.revoked_token_loader
+    def revoked_token_callback(jwt_header, jwt_payload):
+        return (
+            jsonify(
+                {"description": "The token has been revoked.", "error": "token_revoked"}
+            ),
+            401,
+        )
 
     @jwt.user_identity_loader
     def user_identity_lookup(user):

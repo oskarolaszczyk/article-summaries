@@ -5,13 +5,14 @@ from flask_jwt_extended import (
     create_refresh_token,
     jwt_required,
     get_jwt_identity,
-    unset_jwt_cookies,
+    get_jwt,
+    # unset_jwt_cookies,
 )
 from article_summaries.models import db, User, UserType
 from article_summaries import bcrypt
 from sqlalchemy import or_
 from flask_jwt_extended import current_user
-
+from article_summaries.apps.auth.blocklist import BLOCKLIST
 
 auth_bp = Blueprint(
     "auth_bp", __name__, template_folder="templates", static_folder="static"
@@ -95,9 +96,12 @@ def refresh():
 
 
 @auth_bp.route("/logout", methods=["POST"])
+@jwt_required()
 def logout():
+    jti = get_jwt()["jti"]
+    BLOCKLIST.add(jti)
     response = jsonify({"message": "Logout successful."}), 200
-    unset_jwt_cookies(response)
+    # unset_jwt_cookies(response)
     return response
 
 

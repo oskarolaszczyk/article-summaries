@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useContext } from "react";
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
@@ -11,9 +12,15 @@ import { AuthContext } from "./AuthContext";
 
 export default function AppNavbar() {
   const { isLoggedIn, isAdmin, logout } = useContext(AuthContext);
-  const handleLogout = () => {
-    logout();
-    window.location.href = '/login';
+  const handleLogout = async () => {
+    try {
+			await axios.post("http://127.0.0.1:8000/auth/logout");
+      logout();
+      window.location.href = '/login';
+		} catch (error) {
+			console.error(error);
+		}
+
   };
 
   return (
@@ -84,7 +91,6 @@ export default function AppNavbar() {
                   height="58"
                   className="d-inline-block icon-container"
                 />
-                {console.log("isLogged: ", isLoggedIn)}
                 {isLoggedIn ? (
                   <span className="mx-3 nav-link-text" onClick={handleLogout}>Log Out</span>
                 ) : (
