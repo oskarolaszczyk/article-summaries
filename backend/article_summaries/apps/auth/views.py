@@ -9,6 +9,7 @@ from flask_jwt_extended import (
 from article_summaries.models import db, User
 from article_summaries import bcrypt
 from sqlalchemy import or_
+from flask_jwt_extended import current_user
 
 
 auth_bp = Blueprint(
@@ -86,11 +87,9 @@ def login():
 @jwt_required(refresh=True)
 def refresh():
     identity = get_jwt_identity()
+    access_token = create_access_token(identity=identity, fresh=False)
 
-    access_token = create_access_token(identity=identity)
-    refresh_token = create_refresh_token(identity=identity)
-
-    response_body = {"access_token": access_token, "refresh_token": refresh_token}
+    response_body = {"access_token": access_token}
     return jsonify(response_body), 200
 
 
@@ -105,3 +104,13 @@ def logout():
 @jwt_required()
 def protected():
     return jsonify({"message": "Access to protected endpoint."}), 200
+
+
+@auth_bp.route("/who-am-i", methods=["GET"])
+@jwt_required()
+def who_am_i():
+    return jsonify(
+        id=current_user.id,
+        username=current_user.username,
+        email=current_user.email,
+    )

@@ -3,7 +3,7 @@ from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 
-from article_summaries.models import db
+from article_summaries.models import db, User
 
 jwt = JWTManager()
 bcrypt = Bcrypt()
@@ -17,6 +17,15 @@ def create_app():
     jwt.init_app(app)
     bcrypt.init_app(app)
     CORS(app, origins="http://localhost:3000")
+
+    @jwt.user_identity_loader
+    def user_identity_lookup(user):
+        return user.id
+
+    @jwt.user_lookup_loader
+    def user_lookup_callback(_jwt_header, jwt_data):
+        identity = jwt_data["sub"]
+        return User.query.filter_by(id=identity).one_or_none()
 
     from article_summaries.apps.core.views import core_bp
     from article_summaries.apps.auth.views import auth_bp
