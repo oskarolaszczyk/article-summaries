@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useState } from 'react';
 
 const AuthContext = createContext({
   isLoggedIn: false,
-  user: null,
+  isAdmin: null,
   accessToken: null,
   refreshToken: null,
   login: () => {},
@@ -11,48 +11,49 @@ const AuthContext = createContext({
 
 const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
   const [refreshToken, setRefreshToken] = useState(null);
 
   useEffect(() => {
     // When the application starts, we check whether authentication data exists in localStorage
-    const storedUser = localStorage.getItem('user');
     const storedAccessToken = localStorage.getItem('accessToken');
     const storedRefreshToken = localStorage.getItem('refreshToken');
+    const storedIsAdmin = localStorage.getItem('isAdmin');
     
-    if (storedUser && storedAccessToken && storedRefreshToken) {
+    if (storedAccessToken && storedRefreshToken && storedIsAdmin) {
       setIsLoggedIn(true);
-      setUser(JSON.parse(storedUser));
+      setIsAdmin(storedIsAdmin);
       setAccessToken(storedAccessToken);
       setRefreshToken(storedRefreshToken);
     }
   }, []);
 
-  const handleLogin = (userData, access_token, refresh_token) => {
+  const handleLogin = (access_token, refresh_token, is_admin) => {
+
     setIsLoggedIn(true);
-    setUser(userData);
+    setIsAdmin(is_admin);
     setAccessToken(access_token);
     setRefreshToken(refresh_token);
-    
-    localStorage.setItem('user', JSON.stringify(userData));
+
     localStorage.setItem('accessToken', access_token);
     localStorage.setItem('refreshToken', refresh_token);
+    localStorage.setItem('isAdmin', is_admin);
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    setUser(null);
+    setIsAdmin(null);
     setAccessToken(null);
     setRefreshToken(null);
     
-    localStorage.removeItem('user');
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('isAdmin');
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, accessToken, refreshToken, login: handleLogin, logout: handleLogout }}>
+    <AuthContext.Provider value={{ isLoggedIn, isAdmin, accessToken, refreshToken, login: handleLogin, logout: handleLogout }}>
       {children}
     </AuthContext.Provider>
   );

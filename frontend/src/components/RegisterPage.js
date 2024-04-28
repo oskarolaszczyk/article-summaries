@@ -19,8 +19,8 @@ export default function RegisterPage() {
 				password
 			});
 
-			const { access_token, refresh_token, user } = response.data;
-			login(user, access_token, refresh_token);
+			const { access_token, refresh_token, is_admin } = response.data;
+			login(access_token, refresh_token, is_admin);
 			window.location.href = "/";
 		} catch (error) {
 			console.error(error);

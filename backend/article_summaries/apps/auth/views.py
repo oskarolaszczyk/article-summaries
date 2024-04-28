@@ -47,6 +47,7 @@ def register():
     response_body = {
         "access_token": access_token,
         "refresh_token": refresh_token,
+        "is_admin": new_user.type == UserType.ADMIN,
     }
 
     return jsonify(response_body), 201
@@ -54,15 +55,15 @@ def register():
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    login_name = request.json.get("username")
+    username = request.json.get("username")
     password = request.json.get("password")
 
-    if not login_name or not password:
+    if not username or not password:
         response_body = {"error": "No username or email or password provided."}
         return jsonify(response_body), 400
 
     user = User.query.filter(
-        or_(User.username == login_name, User.email == login_name)
+        or_(User.username == username, User.email == username)
     ).first()
     if not user:
         response_body = {"error": "User with given credentials does not exist."}
@@ -78,6 +79,7 @@ def login():
     response_body = {
         "access_token": access_token,
         "refresh_token": refresh_token,
+        "is_admin": user.type == UserType.ADMIN,
     }
     return jsonify(response_body), 200
 
