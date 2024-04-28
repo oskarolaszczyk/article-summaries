@@ -3,7 +3,7 @@ from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 
-from article_summaries.models import db, User
+from article_summaries.models import db, User, UserType
 
 jwt = JWTManager()
 bcrypt = Bcrypt()
@@ -26,6 +26,12 @@ def create_app():
     def user_lookup_callback(_jwt_header, jwt_data):
         identity = jwt_data["sub"]
         return User.query.filter_by(id=identity).one_or_none()
+
+    @jwt.additional_claims_loader
+    def user_type_claims(identity):
+        if identity.type == UserType.ADMIN:
+            return {"is_admin": True}
+        return {"is_admin": False}
 
     from article_summaries.apps.core.views import core_bp
     from article_summaries.apps.auth.views import auth_bp

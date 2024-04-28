@@ -108,10 +108,13 @@ def protected():
 @auth_bp.route("/who-am-i", methods=["GET"])
 @jwt_required()
 def who_am_i():
-    return jsonify(
-        id=current_user.id,
-        username=current_user.username,
-        email=current_user.email,
-        type=current_user.type.name,
-        created_on=current_user.created_on,
+    return (
+        jsonify(
+            id=current_user.id,
+            username=current_user.username,
+            email=current_user.email,
+            type=current_user.type.name,
+            created_on=current_user.created_on,
+        ),
+        200,
     )
