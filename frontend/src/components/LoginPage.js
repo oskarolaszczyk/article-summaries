@@ -24,7 +24,7 @@ export default function LoginPage() {
 				username,
 				password,
 			});
-		
+			
 			const { access_token, refresh_token , is_admin } = response.data;
 			login(access_token, refresh_token, is_admin);
 			window.location.href = "/";

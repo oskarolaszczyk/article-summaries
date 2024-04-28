@@ -11,7 +11,7 @@ const AuthContext = createContext({
 
 const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [accessToken, setAccessToken] = useState(null);
   const [refreshToken, setRefreshToken] = useState(null);
 
@@ -20,12 +20,13 @@ const AuthProvider = ({ children }) => {
     const storedAccessToken = localStorage.getItem('accessToken');
     const storedRefreshToken = localStorage.getItem('refreshToken');
     const storedIsAdmin = localStorage.getItem('isAdmin');
-    
+
+
     if (storedAccessToken && storedRefreshToken && storedIsAdmin) {
       setIsLoggedIn(true);
-      setIsAdmin(storedIsAdmin);
       setAccessToken(storedAccessToken);
       setRefreshToken(storedRefreshToken);
+      storedIsAdmin === 'true' ? setIsAdmin(true) : setIsAdmin(false);
     }
   }, []);
 
