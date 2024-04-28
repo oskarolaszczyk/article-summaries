@@ -1,5 +1,6 @@
 from article_summaries import create_app
-from article_summaries.models import db
+
+# from article_summaries.models import db
 
 if __name__ == "__main__":
     app = create_app()

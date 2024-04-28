@@ -1,3 +1,4 @@
+import json
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import (
     create_access_token,
@@ -6,7 +7,7 @@ from flask_jwt_extended import (
     get_jwt_identity,
     unset_jwt_cookies,
 )
-from article_summaries.models import db, User
+from article_summaries.models import db, User, UserType
 from article_summaries import bcrypt
 from sqlalchemy import or_
 from flask_jwt_extended import current_user
@@ -40,13 +41,12 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
-    access_token = create_access_token(identity=new_user.id)
-    refresh_token = create_refresh_token(identity=new_user.id)
+    access_token = create_access_token(identity=new_user)
+    refresh_token = create_refresh_token(identity=new_user)
 
     response_body = {
         "access_token": access_token,
         "refresh_token": refresh_token,
-        "user": {},
     }
 
     return jsonify(response_body), 201
@@ -72,13 +72,12 @@ def login():
         response_body = {"error": "Please check your login details and try again."}
         return jsonify(response_body), 401
 
-    access_token = create_access_token(identity=user.id)
-    refresh_token = create_refresh_token(identity=user.id)
+    access_token = create_access_token(identity=user)
+    refresh_token = create_refresh_token(identity=user)
 
     response_body = {
         "access_token": access_token,
         "refresh_token": refresh_token,
-        "user": {},
     }
     return jsonify(response_body), 200
 
@@ -113,4 +112,6 @@ def who_am_i():
         id=current_user.id,
         username=current_user.username,
         email=current_user.email,
+        type=current_user.type.name,
+        created_on=current_user.created_on,
     )
