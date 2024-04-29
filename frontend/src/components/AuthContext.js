@@ -1,8 +1,9 @@
 import React, { createContext, useEffect, useState } from 'react';
+import axiosInstance from '../api/axiosInstance';
 
 const AuthContext = createContext({
   isLoggedIn: false,
-  user: null,
+  isAdmin: null,
   accessToken: null,
   refreshToken: null,
   login: () => {},
@@ -11,48 +12,56 @@ const AuthContext = createContext({
 
 const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [accessToken, setAccessToken] = useState(null);
   const [refreshToken, setRefreshToken] = useState(null);
 
   useEffect(() => {
     // When the application starts, we check whether authentication data exists in localStorage
-    const storedUser = localStorage.getItem('user');
     const storedAccessToken = localStorage.getItem('accessToken');
     const storedRefreshToken = localStorage.getItem('refreshToken');
-    
-    if (storedUser && storedAccessToken && storedRefreshToken) {
+    const storedIsAdmin = localStorage.getItem('isAdmin');
+
+
+    if (storedAccessToken && storedRefreshToken && storedIsAdmin) {
       setIsLoggedIn(true);
-      setUser(JSON.parse(storedUser));
       setAccessToken(storedAccessToken);
       setRefreshToken(storedRefreshToken);
+      storedIsAdmin === 'true' ? setIsAdmin(true) : setIsAdmin(false);
+
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${storedAccessToken}`;
     }
   }, []);
 
-  const handleLogin = (userData, access_token, refresh_token) => {
+  const handleLogin = (access_token, refresh_token, is_admin) => {
+
     setIsLoggedIn(true);
-    setUser(userData);
+    setIsAdmin(is_admin);
     setAccessToken(access_token);
     setRefreshToken(refresh_token);
-    
-    localStorage.setItem('user', JSON.stringify(userData));
+
     localStorage.setItem('accessToken', access_token);
     localStorage.setItem('refreshToken', refresh_token);
+    localStorage.setItem('isAdmin', is_admin);
+
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    setUser(null);
+    setIsAdmin(null);
     setAccessToken(null);
     setRefreshToken(null);
     
-    localStorage.removeItem('user');
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('isAdmin');
+
+    delete axiosInstance.defaults.headers.common["Authorization"];
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, accessToken, refreshToken, login: handleLogin, logout: handleLogout }}>
+    <AuthContext.Provider value={{ isLoggedIn, isAdmin, accessToken, refreshToken, login: handleLogin, logout: handleLogout }}>
       {children}
     </AuthContext.Provider>
   );

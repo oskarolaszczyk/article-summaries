@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { NavLink } from 'react-router-dom';
+import axiosInstance from '../api/axiosInstance';
 import generateLogo from "../resources/generate.svg";
 import logiInLogo from "../resources/logIn.svg";
 import logo from "../resources/logo.svg";
@@ -10,12 +11,18 @@ import "../styles/AppNavbar.css";
 import { AuthContext } from "./AuthContext";
 
 export default function AppNavbar() {
-  const { isLoggedIn, logout } = useContext(AuthContext);
-  const handleLogout = () => {
-    logout();
-    window.location.href = '/login';
+  const { isLoggedIn, isAdmin, logout } = useContext(AuthContext);
+  const handleLogout = async () => {
+    try {
+			await axiosInstance.post("/auth/logout");
+      logout();
+      window.location.href = '/login';
+		} catch (error) {
+			console.error(error);
+		}
+
   };
-  
+
   return (
       <Navbar expand="lg" className="navbar">
         <Navbar.Brand>
@@ -47,6 +54,7 @@ export default function AppNavbar() {
                 <span className="mx-3 nav-link-text">Generate Summary</span>
               </div>
             </Nav.Link>
+            {isLoggedIn &&
             <Nav.Link className="mx-4 nav-link" to="/profile" as={NavLink} activeclassname="active">
               <div className="d-flex align-items-center">
                 <img
@@ -59,18 +67,21 @@ export default function AppNavbar() {
               <span className="mx-3 nav-link-text">Profile</span>
               </div>
             </Nav.Link>
-            <Nav.Link className="mx-4 nav-link" to="/admin" as={NavLink} activeclassname="active">
-              <div className="d-flex align-items-center">
-                <img
-                  alt="article paper"
-                  src={profileLogo}
-                  width="58"
-                  height="58"
-                  className="d-inline-block icon-container"
-                />
-              <span className="mx-3 nav-link-text">Admin</span>
-              </div>
-            </Nav.Link>
+            }
+            {isAdmin &&
+              <Nav.Link className="mx-4 nav-link" to="/admin" as={NavLink} activeclassname="active">
+                <div className="d-flex align-items-center">
+                  <img
+                    alt="article paper"
+                    src={profileLogo}
+                    width="58"
+                    height="58"
+                    className="d-inline-block icon-container"
+                  />
+                <span className="mx-3 nav-link-text">Admin</span>
+                </div>
+              </Nav.Link>
+            }
             <Nav.Link className="mx-4 nav-link" to="/login" as={NavLink} activeclassname="active">
               <div className="d-flex align-items-center">
                 <img
