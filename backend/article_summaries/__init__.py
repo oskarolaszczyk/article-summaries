@@ -16,33 +16,16 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     bcrypt.init_app(app)
-    CORS(app, origins="http://localhost:3000")
+    CORS(app, origins="*")
 
     @jwt.token_in_blocklist_loader
     def check_if_token_in_blocklist(jwt_header, jwt_payload):
         return jwt_payload["jti"] in BLOCKLIST
 
-    @jwt.revoked_token_loader
-    def revoked_token_callback(jwt_header, jwt_payload):
-        return (
-            jsonify(
-                {"description": "The token has been revoked.", "error": "token_revoked"}
-            ),
-            401,
-        )
-
-    @jwt.user_identity_loader
-    def user_identity_lookup(user):
-        return user.id
-
-    @jwt.user_lookup_loader
-    def user_lookup_callback(_jwt_header, jwt_data):
-        identity = jwt_data["sub"]
-        return User.query.filter_by(id=identity).one_or_none()
-
     @jwt.additional_claims_loader
     def user_type_claims(identity):
-        if identity.type == UserType.ADMIN:
+        user = User.query.filter_by(id=identity).first()
+        if user.type == UserType.ADMIN:
             return {"is_admin": True}
         return {"is_admin": False}
 

@@ -1,4 +1,3 @@
-import json
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import (
     create_access_token,
@@ -42,8 +41,8 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
-    access_token = create_access_token(identity=new_user)
-    refresh_token = create_refresh_token(identity=new_user)
+    access_token = create_access_token(identity=new_user.id)
+    refresh_token = create_refresh_token(identity=new_user.id)
 
     response_body = {
         "access_token": access_token,
@@ -74,8 +73,8 @@ def login():
         response_body = {"error": "Please check your login details and try again."}
         return jsonify(response_body), 401
 
-    access_token = create_access_token(identity=user)
-    refresh_token = create_refresh_token(identity=user)
+    access_token = create_access_token(identity=user.id)
+    refresh_token = create_refresh_token(identity=user.id)
 
     response_body = {
         "access_token": access_token,
@@ -91,8 +90,7 @@ def refresh():
     identity = get_jwt_identity()
     access_token = create_access_token(identity=identity, fresh=False)
 
-    response_body = {"access_token": access_token}
-    return jsonify(response_body), 200
+    return jsonify({"access_token": access_token}), 200
 
 
 @auth_bp.route("/logout", methods=["POST"])
@@ -101,7 +99,7 @@ def logout():
     jti = get_jwt()["jti"]
     BLOCKLIST.add(jti)
     response = jsonify({"message": "Logout successful."}), 200
-    # unset_jwt_cookies(response)
+
     return response
 
 
