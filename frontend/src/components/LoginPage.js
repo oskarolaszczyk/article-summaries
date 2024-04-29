@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useContext, useState } from "react";
 import {
 	Button,
@@ -10,6 +9,7 @@ import {
 	Row,
 } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
+import axiosInstance from "../api/axiosInstance";
 import { AuthContext } from "./AuthContext";
 
 export default function LoginPage() {
@@ -20,7 +20,7 @@ export default function LoginPage() {
 	const handleLogin = async (event) => {
 		event.preventDefault();
 		try {
-			const response = await axios.post("http://127.0.0.1:8000/auth/login", {
+			const response = await axiosInstance.post("/auth/login", {
 				username,
 				password,
 			});

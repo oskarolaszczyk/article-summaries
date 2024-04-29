@@ -1,8 +1,8 @@
-import axios from "axios";
 import React, { useContext } from "react";
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { NavLink } from 'react-router-dom';
+import axiosInstance from '../api/axiosInstance';
 import generateLogo from "../resources/generate.svg";
 import logiInLogo from "../resources/logIn.svg";
 import logo from "../resources/logo.svg";
@@ -14,7 +14,7 @@ export default function AppNavbar() {
   const { isLoggedIn, isAdmin, logout } = useContext(AuthContext);
   const handleLogout = async () => {
     try {
-			await axios.post("http://127.0.0.1:8000/auth/logout");
+			await axiosInstance.post("/auth/logout");
       logout();
       window.location.href = '/login';
 		} catch (error) {

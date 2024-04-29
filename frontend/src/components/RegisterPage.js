@@ -1,8 +1,9 @@
-import axios from 'axios';
 import React, { useContext, useState } from 'react';
 import { Button, Col, Container, Form, FormGroup, Nav, Row } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
+import axiosInstance from '../api/axiosInstance';
 import { AuthContext } from './AuthContext';
+
 
 export default function RegisterPage() {
 	const { login } = useContext(AuthContext);
@@ -13,7 +14,7 @@ export default function RegisterPage() {
 	const handleRegister = async (event) => {
 		event.preventDefault();
 		try {
-			const response = await axios.post('http://127.0.0.1:8000/auth/register', {
+			const response = await axiosInstance.post('/auth/register', {
 				username,
 				email,
 				password
