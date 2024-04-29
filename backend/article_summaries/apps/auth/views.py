@@ -41,7 +41,7 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
-    access_token = create_access_token(identity=new_user.id)
+    access_token = create_access_token(identity=new_user.id, fresh=True)
     refresh_token = create_refresh_token(identity=new_user.id)
 
     response_body = {
@@ -73,7 +73,7 @@ def login():
         response_body = {"error": "Please check your login details and try again."}
         return jsonify(response_body), 401
 
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=user.id, fresh=True)
     refresh_token = create_refresh_token(identity=user.id)
 
     response_body = {
