@@ -4,9 +4,11 @@ from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from article_summaries.models import db, User, UserType
 from article_summaries.apps.auth.blocklist import BLOCKLIST
+from flask_migrate import Migrate
 
 jwt = JWTManager()
 bcrypt = Bcrypt()
+migrate = Migrate()
 
 
 def create_app():
@@ -16,6 +18,7 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     bcrypt.init_app(app)
+    migrate.init_app(app, db)
     CORS(app, origins="http://localhost:3000")
 
     @jwt.token_in_blocklist_loader
