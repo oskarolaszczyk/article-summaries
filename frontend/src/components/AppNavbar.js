@@ -45,7 +45,7 @@ export default function AppNavbar() {
             <Nav.Link className="mx-4 nav-link" to="/article_panel" as={NavLink} activeclassname="active">
               <div className="d-flex align-items-center">
                 <img
-                  alt="article paper"
+                  alt="writing on paper"
                   src={generateLogo}
                   width="58"
                   height="58"
@@ -58,7 +58,7 @@ export default function AppNavbar() {
             <Nav.Link className="mx-4 nav-link" to="/profile" as={NavLink} activeclassname="active">
               <div className="d-flex align-items-center">
                 <img
-                  alt="article paper"
+                  alt="user"
                   src={profileLogo}
                   width="58"
                   height="58"
@@ -72,7 +72,7 @@ export default function AppNavbar() {
               <Nav.Link className="mx-4 nav-link" to="/admin" as={NavLink} activeclassname="active">
                 <div className="d-flex align-items-center">
                   <img
-                    alt="article paper"
+                    alt="admin"
                     src={profileLogo}
                     width="58"
                     height="58"
@@ -82,20 +82,24 @@ export default function AppNavbar() {
                 </div>
               </Nav.Link>
             }
-            <Nav.Link className="mx-4 nav-link" to="/login" as={NavLink} activeclassname="active">
+            <Nav.Link 
+              className="mx-4 nav-link" 
+              to="/login" 
+              as={NavLink} 
+              activeclassname="active" 
+              onClick={isLoggedIn ? handleLogout : null}
+            >
               <div className="d-flex align-items-center">
                 <img
-                  alt="article paper"
+                  alt="log in or log out"
                   src={logiInLogo}
                   width="58"
                   height="58"
                   className="d-inline-block icon-container"
                 />
-                {isLoggedIn ? (
-                  <span className="mx-3 nav-link-text" onClick={handleLogout}>Log Out</span>
-                ) : (
-                  <span className="mx-3 nav-link-text">Log In</span>
-                )}
+                <span className="mx-3 nav-link-text">
+                  {isLoggedIn ? 'Log Out' : 'Log In'}
+                </span>
               </div>
             </Nav.Link>
           </Nav>

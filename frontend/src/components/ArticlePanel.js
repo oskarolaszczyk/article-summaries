@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { useState } from 'react';
+import { jwtDecode } from 'jwt-decode';
+import { useEffect, useState } from 'react';
 import "../styles/ArticlePanel.css";
 import { Button, ButtonGroup, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import { jsPDF } from "jspdf";
@@ -15,11 +16,16 @@ const ArticlePanel = () => {
     const [generatedSummary, setGeneratedSummary] = useState('');
     const [numSentences, setNumSentences] = useState(10);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [rating, setRating] = useState(null);
+    const [userId, setUserId] = useState(null);
 
-    const handleRating = (rating) => {
-        // Logic to handle summary rating (good/bad)
-        // Optionally, regenerate the summary
-    };
+    useEffect(() => {
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+            const decodedToken = jwtDecode(token);
+            setUserId(decodedToken.sub);
+        }
+    }, []);
 
     const handleNumSentences = (event) => {
         const val = event.target.value;
@@ -40,11 +46,10 @@ const ArticlePanel = () => {
         const contentWidth = 210 - 2 * margin;
         // Title
         pdf.setFontSize(16);
-        pdf.setFont("times", "bold");
-        pdf.text("Generated Summary", 105, 20, null, null, 'center');
+        pdf.setFont("customTimes", "normal");
+        pdf.text(articleTitle, 105, 20, null, null, 'center');
         // Url
         pdf.setFontSize(10);
-        pdf.setFont("customTimes", "normal");
         pdf.text("Source URL:", margin, 30);
         pdf.setTextColor(40, 23, 173);
         pdf.textWithLink(articleUrl, margin + 25, 30, { url: articleUrl });
@@ -88,7 +93,7 @@ const ArticlePanel = () => {
                     sentences: numSentences
                 });
             } else {
-                response = await axios.post("http://127.0.0.1:8000/summary/", {
+                response = await axios.post("http://127.0.0.1:8000/summary/generate", {
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -116,6 +121,33 @@ const ArticlePanel = () => {
             setArticleTitle(articleData.title);
         }
         setIsGenerating(false);
+    };
+
+    const saveSummary = async () => {
+        const article = {
+            user_id: userId,
+            title: articleTitle,
+            source_url: articleUrl,
+        };
+
+        try {
+            const response = await axios.post('http://127.0.0.1:8000/article/', article);
+            console.log(response.data.message);
+            const summary = {
+                article_id: response.data.article_id,
+                content: generatedSummary,
+                rating: rating,
+                model_type: selectedModel === '1' ? 'MEANINGCLOUD' : 'OUR_MODEL',
+            }
+            try {
+                const res = await axios.post('http://127.0.0.1:8000/summary/', summary);
+                console.log(res.data.message);
+            } catch (error) {
+                console.error("There was an error while saving the summary!", error);
+            }
+        } catch (error) {
+            console.error("There was an error while saving the article!", error);
+        }   
     };
 
     return (
@@ -176,16 +208,26 @@ const ArticlePanel = () => {
                                 </Card.Text>
                             </Card>
                         </Container>
-                        <Container className="my-3 d-flex justify-content-between">
+                        {userId ?  (
+                            <Container className="my-3 d-flex justify-content-between">
                             <ButtonGroup>
-                                <Button className="me-1"><AiFillLike /></Button>
-                                <Button className="me-1"><AiFillDislike /></Button>
+                                <Button className="me-1" disabled={generatedSummary === ''} onClick={() => {setRating(true)}}>
+                                    <AiFillLike />
+                                </Button>
+                                <Button className="me-1" disabled={generatedSummary === ''} onClick={() => {setRating(false)}}>
+                                    <AiFillDislike />
+                                </Button>
                             </ButtonGroup>
-                            <Button onClick={saveToPDF} className="ms-auto">
+                            <Button disabled={rating === null} onClick={saveSummary} className="ms-auto">
+                                Save Summary
+                            </Button>
+                            <Button disabled={generatedSummary === ''} onClick={saveToPDF} className="ms-1">
                                 Save to PDF
                             </Button>
                         </Container>
-
+                        ) : <p className="text-center">
+                                <strong >Log in to get addidtional features!</strong>
+                            </p>}    
                     </Col>
                 </Row>
             </Container>
