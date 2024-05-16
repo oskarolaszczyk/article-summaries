@@ -3,16 +3,15 @@ import { useState } from 'react';
 import "../styles/ArticlePanel.css";
 import { Button, ButtonGroup, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import { jsPDF } from "jspdf";
-import { AiFillLike } from "react-icons/ai";
-import { AiFillDislike } from "react-icons/ai";
-import { IoIosRefresh } from "react-icons/io";
+import { AiFillLike, AiFillDislike } from "react-icons/ai";
 
 require("../resources/times-normal.js");
 
 
 const ArticlePanel = () => {
     const [articleUrl, setArticleUrl] = useState('');
-    const [selectedModel, setSelectedModel] = useState('1');
+    const [selectedModel, setSelectedModel] = useState('2');
+    const [articleTitle, setArticleTitle] = useState('Summary');
     const [generatedSummary, setGeneratedSummary] = useState('');
     const [numSentences, setNumSentences] = useState(10);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -66,7 +65,7 @@ const ArticlePanel = () => {
             const response = await axios.get('http://127.0.0.1:8000/article/scrape', {
                 params: { url: articleUrl }
             });
-            const data = response.data.content;
+            const data = response.data
             return data;
         } catch (error) {
             console.error('Error fetching article content: ', error);
@@ -74,8 +73,6 @@ const ArticlePanel = () => {
     };
 
     const generateSummary = async (articleText) => {
-        setGeneratedSummary("");
-        
         try {
             let response;
             if (selectedModel === "1") {
@@ -110,10 +107,13 @@ const ArticlePanel = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        setArticleTitle("");
+        setGeneratedSummary("");
         setIsGenerating(true);
-        const articleText = await fetchArticleContent();
-        if (articleText) {
-            await generateSummary(articleText);
+        const articleData = await fetchArticleContent();
+        if (articleData) {
+            await generateSummary(articleData.content);
+            setArticleTitle(articleData.title);
         }
         setIsGenerating(false);
     };
@@ -169,7 +169,7 @@ const ArticlePanel = () => {
                     <Col lg={8}>
                         <Container>
                             <Card>
-                                <Card.Title className="display-5 mx-3 text-center">Summary</Card.Title>
+                                <Card.Title className="display-5 mx-3 text-center">{articleTitle}</Card.Title>
                                 <hr />
                                 <Card.Text className="summary-box px-3 my-3 fs-5">
                                     {generatedSummary}
@@ -180,7 +180,6 @@ const ArticlePanel = () => {
                             <ButtonGroup>
                                 <Button className="me-1"><AiFillLike /></Button>
                                 <Button className="me-1"><AiFillDislike /></Button>
-                                <Button className="me-1"><IoIosRefresh /></Button>
                             </ButtonGroup>
                             <Button onClick={saveToPDF} className="ms-auto">
                                 Save to PDF

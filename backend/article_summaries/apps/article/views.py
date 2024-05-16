@@ -14,7 +14,9 @@ def scrape():
         url = request.args.get('url')
         if not url:
             return jsonify({ "error": "URL parameter is missing" }), 400
-        web_text = goose.extract(url=url).cleaned_text
-        return jsonify({ "content": web_text })
+        article = goose.extract(url=url)
+        title = article.title
+        web_text = article.cleaned_text
+        return jsonify({ "title": title, "content": web_text })
     except Exception as e:
         return jsonify({ "error": str(e) }), 500
