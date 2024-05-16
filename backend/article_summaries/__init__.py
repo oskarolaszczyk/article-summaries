@@ -33,14 +33,14 @@ def create_app():
         return {"is_admin": False}
 
     @jwt.expired_token_loader
-    def expired_token_callback():
+    def expired_token_callback(jwt_header, jwt_payload):
         return (
             jsonify({"message": "The token has expired.", "error": "token_expired"}),
             401,
         )
 
     @jwt.invalid_token_loader
-    def invalid_token_callback(error):
+    def invalid_token_callback(jwt_header, jwt_payload):
         return (
             jsonify(
                 {"message": "Signature verification failed.", "error": "invalid_token"}
@@ -49,7 +49,7 @@ def create_app():
         )
 
     @jwt.unauthorized_loader
-    def missing_token_callback(error):
+    def missing_token_callback(jwt_header, jwt_payload):
         return (
             jsonify(
                 {
@@ -61,7 +61,7 @@ def create_app():
         )
 
     @jwt.needs_fresh_token_loader
-    def token_not_fresh_callback():
+    def token_not_fresh_callback(jwt_header, jwt_payload):
         return (
             jsonify(
                 {"message": "The token is not fresh.", "error": "fresh_token_required"}
@@ -70,7 +70,7 @@ def create_app():
         )
 
     @jwt.revoked_token_loader
-    def revoked_token_callback():
+    def revoked_token_callback(jwt_header, jwt_payload):
         return (
             jsonify(
                 {"message": "The token has been revoked.", "error": "token_revoked"}
