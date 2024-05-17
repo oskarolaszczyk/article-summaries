@@ -1,4 +1,6 @@
+from functools import wraps
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required
 from article_summaries.models import db, Summary, Article, User
 
 admin_bp = Blueprint(
@@ -6,7 +8,18 @@ admin_bp = Blueprint(
 )
 
 
+def admin_permissions(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        is_admin = request.args.get("isAdmin")
+        if not is_admin:
+            return jsonify("error:" "Admin privileges required!"), 403
+        return f(*args, **kwargs)
+    return decorated
+
 @admin_bp.route("/users", methods=['GET'])
+@jwt_required()
+@admin_permissions
 def get_all_users():
     users = User.query.all()
     if not users:
@@ -23,14 +36,16 @@ def get_all_users():
     return jsonify(res), 200
 
 @admin_bp.route("/articles", methods=['GET'])
+@jwt_required()
+@admin_permissions
 def get_all_articles():
     articles = Article.query.all()
     if not articles:
         return jsonify({"error": "No articles found in database"}), 200
-    
     res = [
         {
             "id": article.id,
+            "user_id": article.user_id,
             "title": article.title,
             "source_url": article.source_url,
             "date_added": article.date_added
@@ -38,11 +53,13 @@ def get_all_articles():
     ]
     return jsonify(res), 200
 
-@admin_bp.route("/all_summaries/<int:article_id>", methods=['GET'])
-def get_article_summaries(article_id):
-    summaries = Summary.query.filter_by(article_id=article_id).all()
+@admin_bp.route("/summaries", methods=['GET'])
+@jwt_required()
+@admin_permissions
+def get_article_summaries():
+    summaries = Summary.query.all()
     if not summaries:
-        return jsonify({"error": "No summaries found for this article"}), 200
+        return jsonify({"error": "No summaries found in database"}), 200
     res = [
         {
             "id": summary.id,

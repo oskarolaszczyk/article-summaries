@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required
 from article_summaries import bcrypt
 from article_summaries.models import db, Summary, Article, User
 
@@ -8,6 +9,7 @@ account_bp = Blueprint(
 )
 
 @account_bp.route("/<int:user_id>/articles", methods=['GET'])
+@jwt_required()
 def get_user_articles(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -25,6 +27,7 @@ def get_user_articles(user_id):
     return jsonify(articles_list), 200
 
 @account_bp.route("/summaries/<int:article_id>", methods=['GET'])
+@jwt_required()
 def get_user_summaries(article_id):
     article = Article.query.get(article_id)
     if not article:
@@ -43,6 +46,7 @@ def get_user_summaries(article_id):
     return jsonify(result), 200
 
 @account_bp.route("/<int:user_id>", methods=['PUT'])
+@jwt_required()
 def update_user_data(user_id):
     user = User.query.get(user_id)
     if not user:

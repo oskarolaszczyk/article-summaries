@@ -3,8 +3,8 @@ import { jwtDecode } from 'jwt-decode';
 import { useEffect, useState } from 'react';
 import "../styles/ArticlePanel.css";
 import { Button, ButtonGroup, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
-import { jsPDF } from "jspdf";
 import { AiFillLike, AiFillDislike } from "react-icons/ai";
+import axiosInstance from '../api/axiosInstance.js'
 
 require("../resources/times-normal.js");
 
@@ -38,30 +38,6 @@ const ArticlePanel = () => {
 
     const handleModelChange = (event) => {
         setSelectedModel(event.target.value);
-    };
-
-    const saveToPDF = () => {
-        const pdf = new jsPDF();
-        const margin = 10;
-        const contentWidth = 210 - 2 * margin;
-        // Title
-        pdf.setFontSize(16);
-        pdf.setFont("customTimes", "normal");
-        pdf.text(articleTitle, 105, 20, null, null, 'center');
-        // Url
-        pdf.setFontSize(10);
-        pdf.text("Source URL:", margin, 30);
-        pdf.setTextColor(40, 23, 173);
-        pdf.textWithLink(articleUrl, margin + 25, 30, { url: articleUrl });
-        // Summary
-        pdf.setTextColor(0, 0, 0);
-        pdf.setFontSize(12);
-        const lines = pdf.splitTextToSize(generatedSummary, contentWidth);
-        pdf.text(lines, margin, 40, { maxWidth: contentWidth, align: "justify" });
-        
-        pdf.setFontSize(10);
-        pdf.text('Page 1', 105, 285, null, null, 'center');
-        pdf.save("summary.pdf");
     };
 
     const fetchArticleContent = async () => {
@@ -131,7 +107,7 @@ const ArticlePanel = () => {
         };
 
         try {
-            const response = await axios.post('http://127.0.0.1:8000/article/', article);
+            const response = await axiosInstance.post('http://127.0.0.1:8000/article/', article);
             console.log(response.data.message);
             const summary = {
                 article_id: response.data.article_id,
@@ -140,7 +116,7 @@ const ArticlePanel = () => {
                 model_type: selectedModel === '1' ? 'MEANINGCLOUD' : 'OUR_MODEL',
             }
             try {
-                const res = await axios.post('http://127.0.0.1:8000/summary/', summary);
+                const res = await axiosInstance.post('http://127.0.0.1:8000/summary/', summary);
                 console.log(res.data.message);
             } catch (error) {
                 console.error("There was an error while saving the summary!", error);
@@ -220,9 +196,6 @@ const ArticlePanel = () => {
                             </ButtonGroup>
                             <Button disabled={rating === null} onClick={saveSummary} className="ms-auto">
                                 Save Summary
-                            </Button>
-                            <Button disabled={generatedSummary === ''} onClick={saveToPDF} className="ms-1">
-                                Save to PDF
                             </Button>
                         </Container>
                         ) : <p className="text-center">

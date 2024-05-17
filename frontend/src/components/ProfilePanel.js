@@ -1,10 +1,11 @@
-import axios from 'axios';
+import { jsPDF } from "jspdf";
 import { Accordion, Button, Col, Container, Form, Row } from 'react-bootstrap'
 import { useEffect, useState } from 'react'
 
 import axiosInstance from '../api/axiosInstance';
 import "../styles/ProfilePanel.css";
 
+require("../resources/times-normal.js");
 
 export default function ProfilePanel() {
   const [userId, setUserId] = useState('');
@@ -21,7 +22,7 @@ export default function ProfilePanel() {
       setUsername(data.username);
       setEmail(data.email);
       setUserId(data.id);
-      axios.get(`http://127.0.0.1:8000/account/${data.id}/articles`)
+      axiosInstance.get(`http://127.0.0.1:8000/account/${data.id}/articles`)
         .then((res) => {
           setArticles(res.data);
         })
@@ -47,7 +48,7 @@ export default function ProfilePanel() {
       password: newPassword,
     }
     try {
-      const response = await axios.put(`http://127.0.0.1:8000/account/${userId}`, profile_data);
+      const response = await axiosInstance.put(`http://127.0.0.1:8000/account/${userId}`, profile_data);
       console.log(response.data.message);
     } catch (error) {
       console.error("Error while updating profile data: ", error);
@@ -56,7 +57,7 @@ export default function ProfilePanel() {
 
   const handleAccordionOpen = (articleId) => {
     if(!summaries[articleId]) {
-      axios.get(`http://127.0.0.1:8000/account/summaries/${articleId}`)
+      axiosInstance.get(`http://127.0.0.1:8000/account/summaries/${articleId}`)
         .then((res) => {
         setSummaries(prevSummaries => ({ ...prevSummaries, [articleId]: res.data}));
       })
@@ -64,6 +65,30 @@ export default function ProfilePanel() {
         console.error(error)
       });
     }
+  };
+
+  const saveToPDF = (title, url, content, articleId, summaryId) => {
+    const pdf = new jsPDF();
+    const margin = 10;
+    const contentWidth = 210 - 2 * margin;
+    // Title
+    pdf.setFontSize(16);
+    pdf.setFont("customTimes", "normal");
+    pdf.text(title, 105, 20, null, null, 'center');
+    // Url
+    pdf.setFontSize(10);
+    pdf.text("Source URL:", margin, 30);
+    pdf.setTextColor(40, 23, 173);
+    pdf.textWithLink(url, margin + 25, 30, { url: url });
+    // Summary
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFontSize(12);
+    const lines = pdf.splitTextToSize(content, contentWidth);
+    pdf.text(lines, margin, 40, { maxWidth: contentWidth, align: "justify" });
+    
+    pdf.setFontSize(10);
+    pdf.text('Page 1', 105, 285, null, null, 'center');
+    pdf.save(`summary_a${articleId}_s${summaryId}.pdf`);
   };
 
   return (
@@ -135,6 +160,12 @@ export default function ProfilePanel() {
                           <p><strong>Rating:</strong> {summary.rating ? 'Positive' : 'Negative'}</p>
                           <p><strong>Model:</strong> {summary.model_type}</p>
                           <p><strong>Date Generated:</strong> {new Date(summary.date_generated).toLocaleString()}</p>
+                          <Button 
+                            onClick={() => saveToPDF(article.title, article.source_url, summary.content, article.id, summary.id)} 
+                            className="ms-1"
+                          >
+                            Save to PDF
+                          </Button>
                         </div>
                       ))
                     ) : (

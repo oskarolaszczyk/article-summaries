@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required
 from article_summaries.models import db, Summary
 
 import re
@@ -86,6 +87,7 @@ def summarize(article, idf, num_of_sentences):
 
 
 @summary_bp.route("/summary/<int:id>/rate", methods=['PUT'])
+@jwt_required()
 def rate_summary(id):
     req = request.get_json()
     rating = req.get('rating')
@@ -129,6 +131,7 @@ def summarize_endpoint():
 
 
 @summary_bp.route("/", methods=["POST"])
+@jwt_required()
 def add_summary():
     data = request.get_json()
     article_id = data.get("article_id")

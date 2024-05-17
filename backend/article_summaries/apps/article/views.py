@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from goose3 import Goose
 from article_summaries.models import db, Article
 from sqlalchemy import exists
+from flask_jwt_extended import jwt_required
 
 
 headers = { "Accept-Language": "pl,en-US;q=0.7,en;q=0.3" }
@@ -26,6 +27,7 @@ def scrape():
 
 
 @article_bp.route("/", methods=['POST'])
+@jwt_required()
 def add_article():
     data = request.get_json()
     user_id = data.get('user_id')
