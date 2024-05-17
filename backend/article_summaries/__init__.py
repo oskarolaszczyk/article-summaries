@@ -77,15 +77,24 @@ def create_app():
             ),
             401,
         )
+    
+    @jwt.user_lookup_loader
+    def user_lookup_callback(_jwt_header, jwt_data):
+        identity = jwt_data["sub"]
+        return User.query.filter_by(id=identity).one_or_none()
 
     from article_summaries.apps.core.views import core_bp
     from article_summaries.apps.auth.views import auth_bp
     from article_summaries.apps.summary.views import summary_bp
     from article_summaries.apps.article.views import article_bp
+    from article_summaries.apps.account.views import account_bp
+    from article_summaries.apps.admin.views import admin_bp
 
     app.register_blueprint(core_bp, url_prefix="/api")
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(summary_bp, url_prefix="/summary")
     app.register_blueprint(article_bp, url_prefix="/article")
+    app.register_blueprint(account_bp, url_prefix="/account")
+    app.register_blueprint(admin_bp, url_prefix="/admin")
 
     return app

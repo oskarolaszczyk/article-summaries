@@ -1,6 +1,5 @@
 import React, { useContext } from "react";
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
+import { Nav, Navbar } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import generateLogo from "../resources/generate.svg";

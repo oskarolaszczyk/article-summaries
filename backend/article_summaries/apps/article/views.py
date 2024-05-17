@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from goose3 import Goose
 from article_summaries.models import db, Article
+from sqlalchemy import exists
 
 
 headers = { "Accept-Language": "pl,en-US;q=0.7,en;q=0.3" }
@@ -32,6 +33,11 @@ def add_article():
     source_url = data.get('source_url')
     if not user_id or not title or not source_url:
         return jsonify({"error": "Missing user id, title or source URL"}), 400
+    
+    existing_article = Article.query.filter_by(title=title, user_id=user_id).first()
+    if existing_article:
+        return jsonify({"message": "Article already exists", "article_id": existing_article.id}), 200
+
     article = Article(
         user_id=user_id, 
         title=title, 
