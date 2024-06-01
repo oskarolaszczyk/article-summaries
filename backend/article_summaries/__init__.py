@@ -14,7 +14,7 @@ from article_summaries.models import db, User, UserType
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object("config.DevConfig")
+    app.config.from_object("config.TestConfig")
 
     db.init_app(app)
     jwt.init_app(app)
