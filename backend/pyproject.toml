@@ -22,6 +22,9 @@ goose3 = "^3.1.19"
 flask-migrate = "^4.0.7"
 
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.1"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
