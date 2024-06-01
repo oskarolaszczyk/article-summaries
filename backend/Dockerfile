@@ -1,7 +1,8 @@
-FROM python:3.11 as python-base
+FROM python:3.11.8 as python-base
 
-# https://python-poetry.org/docs#ci-recommendations
-ENV POETRY_VERSION=1.2.0
+# https://python-poetry.org/docs#ci-recommendations 
+#TODO change poetry version later
+ENV POETRY_VERSION=1.8.1 
 ENV POETRY_HOME=/opt/poetry
 ENV POETRY_VENV=/opt/poetry-venv
 ENV PIP_DISABLE_PIP_VERSION_CHECK 1
@@ -34,14 +35,15 @@ WORKDIR /app
 COPY poetry.lock pyproject.toml ./
 
 # [OPTIONAL] Validate the project is properly configured
-RUN poetry check
+# RUN poetry check
 
 # Install Dependencies
-RUN poetry install --no-interaction --no-cache --without dev
+RUN poetry install --no-interaction --no-cache 
+# RUN poetry install --no-interaction --no-cache --without dev
 
 # Copy Application
 COPY . /app
 
 # Run Application
-EXPOSE 5000
-CMD [ "poetry", "run", "python", "article_summaries/app.py"]
+EXPOSE 8000
+CMD [ "poetry", "run", "python", "app.py"]
