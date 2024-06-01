@@ -41,7 +41,7 @@ def create_app():
         )
 
     @jwt.invalid_token_loader
-    def invalid_token_callback(jwt_header, jwt_payload):
+    def invalid_token_callback(jwt_header):
         return (
             jsonify(
                 {"message": "Signature verification failed.", "error": "invalid_token"}
@@ -50,7 +50,7 @@ def create_app():
         )
 
     @jwt.unauthorized_loader
-    def missing_token_callback(jwt_header, jwt_payload):
+    def missing_token_callback(jwt_header):
         return (
             jsonify(
                 {
