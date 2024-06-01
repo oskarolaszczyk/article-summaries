@@ -6,19 +6,20 @@ from article_summaries.models import User, UserType, Article
 @pytest.fixture()
 def app():
     app = create_app()
-    app.config.update(
-        {
-            "TESTING": True,
-        }
-    )
-    # other setup can go here
+    app.config.from_object("config.TestConfig")
+
     yield app
-    # clean up / reset resources here
 
 
 @pytest.fixture()
 def client(app):
-    return app.test_client()
+    client = app.test_client()
+    ctx = app.test_request_context()
+    ctx.push()
+
+    yield client
+
+    ctx.pop()
 
 
 @pytest.fixture()

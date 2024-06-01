@@ -29,3 +29,8 @@ class DevConfig(Config):
     # DB_NAME = os.getenv("DB_NAME")
     # SQLALCHEMY_DATABASE_URI = (f"postgresql+psycopg2://{DB_USERNAME}"
     #                f":{DB_PASSWORD}@{DB_HOSTNAME}/{DB_NAME}")
+
+
+class TestConfig(Config):
+    FLASK_ENV = "testing"
+    TESTING = True
