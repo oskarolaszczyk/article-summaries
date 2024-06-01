@@ -1,21 +1,16 @@
-from article_summaries.models import User, UserType
+from article_summaries.models import UserType
+from ..conftest import new_user, new_user_admin
 
 
-def test_new_user():
-    user = User(username="test", email="test@mail.com", password="test")
-
-    assert user.username == "test"
-    assert user.email == "test@mail.com"
-    assert user.password != "test"  # hashed password
-    assert user.type == UserType.USER
+def test_new_user(new_user):
+    assert new_user.username == "test"
+    assert new_user.email == "test@mail.com"
+    assert new_user.password != "test"  # hashed password
+    assert new_user.type == UserType.USER
 
 
-def test_new_user_admin():
-    user = User(
-        username="admin", email="admin@mail.com", password="admin", type=UserType.ADMIN
-    )
-
-    assert user.username == "admin"
-    assert user.email == "admin@mail.com"
-    assert user.password != "admin"  # hashed password
-    assert user.type == UserType.ADMIN
+def test_new_user_admin(new_user_admin):
+    assert new_user_admin.username == "admin"
+    assert new_user_admin.email == "admin@mail.com"
+    assert new_user_admin.password != "admin"  # hashed password
+    assert new_user_admin.type == UserType.ADMIN
