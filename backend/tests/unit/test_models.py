@@ -7,3 +7,4 @@ def test_new_user():
     assert user.username == "test"
     assert user.email == "test@mail.com"
     assert user.password != "test"  # hashed password
+    assert user.type == UserType.USER

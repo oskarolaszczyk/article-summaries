@@ -27,10 +27,14 @@ class User(db.Model):
     type = db.Column(db.Enum(UserType), default=UserType.USER, nullable=False)
     created_on = db.Column(db.DateTime, default=datetime.now())
 
-    def __init__(self, username, email, password):
-        self.username = username
-        self.email = email
+    def __init__(self, **kwargs):  # TODO: check if there is a better way to do this
+        super(User, self).__init__(**kwargs)
+        password = kwargs.get("password")
         self.password = bcrypt.generate_password_hash(password).decode("utf-8")
+        if "type" not in kwargs:
+            self.type = UserType.USER
+        if "created_on" not in kwargs:
+            self.created_on = datetime.now()
 
 
 class Article(db.Model):
