@@ -2,13 +2,14 @@ from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
-from article_summaries.models import db, User, UserType
 from article_summaries.apps.auth.blocklist import BLOCKLIST
 from flask_migrate import Migrate
 
 jwt = JWTManager()
 bcrypt = Bcrypt()
 migrate = Migrate()
+
+from article_summaries.models import db, User, UserType
 
 
 def create_app():
@@ -77,7 +78,7 @@ def create_app():
             ),
             401,
         )
-    
+
     @jwt.user_lookup_loader
     def user_lookup_callback(_jwt_header, jwt_data):
         identity = jwt_data["sub"]
