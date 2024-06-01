@@ -8,3 +8,14 @@ def test_new_user():
     assert user.email == "test@mail.com"
     assert user.password != "test"  # hashed password
     assert user.type == UserType.USER
+
+
+def test_new_user_admin():
+    user = User(
+        username="admin", email="admin@mail.com", password="admin", type=UserType.ADMIN
+    )
+
+    assert user.username == "admin"
+    assert user.email == "admin@mail.com"
+    assert user.password != "admin"  # hashed password
+    assert user.type == UserType.ADMIN
