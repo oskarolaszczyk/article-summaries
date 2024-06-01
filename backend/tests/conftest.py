@@ -1,5 +1,5 @@
 import pytest
-from article_summaries import create_app
+from article_summaries import create_app, db
 from article_summaries.models import User, UserType, Article
 
 
@@ -12,7 +12,7 @@ def app():
 
 
 @pytest.fixture()
-def client(app):
+def client_without_db(app):
     client = app.test_client()
     ctx = app.test_request_context()
     ctx.push()
@@ -20,6 +20,16 @@ def client(app):
     yield client
 
     ctx.pop()
+
+
+@pytest.fixture()
+def client(client_without_db):
+    db.create_all()
+
+    yield client_without_db
+
+    db.session.commit()
+    db.drop_all()
 
 
 @pytest.fixture()
