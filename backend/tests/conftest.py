@@ -4,14 +4,14 @@ from article_summaries import create_app, db
 from article_summaries.models import User, UserType, Article
 
 
-TOKEN_EXPIRATION_TIME = timedelta(seconds=2)
+TOKEN_EXPIRATION_TIME = 2
 
 
 @pytest.fixture(scope="module")
 def app():
     app = create_app()
     app.config.from_object("config.TestConfig")
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = TOKEN_EXPIRATION_TIME
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(seconds=TOKEN_EXPIRATION_TIME)
 
     with app.app_context():
         db.create_all()
