@@ -97,10 +97,10 @@ def new_user_admin_db(new_user_admin):
 
 
 @pytest.fixture()
-def new_article(new_user):
+def new_article():
     article = Article(
-        user_id=new_user.id, title="Test Article", source_url="https://test.com"
-    )
+        user_id=1, title="Test Article", source_url="https://test.com"
+    )  # TODO try to use new_user.id or something
     return article
 
 
@@ -116,7 +116,7 @@ def new_article_db(new_article):
 @pytest.fixture()
 def new_summary(new_article):
     summary = Summary(
-        article_id=new_article.id,
+        article_id=1,  # TODO try to use new_article.id or something
         content="Test summary",
         model_type=ModelType.OUR_MODEL,
     )

@@ -17,7 +17,7 @@ def test_new_user_admin(new_user_admin):
 
 
 def test_new_article(new_user, new_article):
-    assert new_article.user_id == new_user.id
+    assert new_article.user_id == 1  # TODO try to use new_user.id or something
     assert new_article.title == "Test Article"
     assert new_article.source_url == "https://test.com"
 

@@ -13,7 +13,7 @@ def admin_permissions(f):
     def decorated(*args, **kwargs):
         is_admin = current_user.type == UserType.ADMIN
         if not is_admin:
-            return jsonify("error:" "Admin privileges required!"), 403
+            return jsonify({"error": "Admin privileges required!"}), 403
         return f(*args, **kwargs)
 
     return decorated
@@ -44,6 +44,7 @@ def get_all_users():
 @admin_permissions
 def get_all_articles():
     articles = Article.query.all()
+    print(articles)
     if not articles:
         return jsonify({"error": "No articles found in database"}), 200
     res = [
