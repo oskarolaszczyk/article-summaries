@@ -1,11 +1,26 @@
 from datetime import timedelta
+from functools import wraps
 from flask import url_for
 import pytest
 from article_summaries import create_app, db
-from article_summaries.models import User, UserType, Article
+from article_summaries.models import User, UserType, Article, Summary, ModelType
+from sqlalchemy.exc import IntegrityError
 
 
 TOKEN_EXPIRATION_TIME = 2
+
+
+def handle_db_integrity_error(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            result = f(*args, **kwargs)
+            db.session.commit()
+            return result
+        except IntegrityError:
+            db.session.rollback()
+
+    return decorated_function
 
 
 @pytest.fixture(scope="module")
@@ -53,6 +68,7 @@ def new_user(user_data):
 
 
 @pytest.fixture()
+@handle_db_integrity_error
 def new_user_db(new_user):
     db.session.add(new_user)
     db.session.commit()
@@ -72,6 +88,7 @@ def new_user_admin(admin_data):
 
 
 @pytest.fixture()
+@handle_db_integrity_error
 def new_user_admin_db(new_user_admin):
     db.session.add(new_user_admin)
     db.session.commit()
@@ -88,8 +105,48 @@ def new_article(new_user):
 
 
 @pytest.fixture()
+@handle_db_integrity_error
 def new_article_db(new_article):
     db.session.add(new_article)
     db.session.commit()
 
     return new_article
+
+
+@pytest.fixture()
+def new_summary(new_article):
+    summary = Summary(
+        article_id=new_article.id,
+        content="Test summary",
+        model_type=ModelType.OUR_MODEL,
+    )
+    return summary
+
+
+@pytest.fixture()
+@handle_db_integrity_error
+def new_summary_db(new_summary):
+    db.session.add(new_summary)
+    db.session.commit()
+
+    return new_summary
+
+
+@pytest.fixture()
+def access_token(client, new_user_db, user_data):
+    # Log in as regular user to get the token
+    response = client.post(
+        url_for("auth_bp.login"),
+        json={"username": user_data["username"], "password": user_data["password"]},
+    )
+    return response.json["access_token"]
+
+
+@pytest.fixture()
+def access_token_admin(client, new_user_admin_db, admin_data):
+    # Log in as regular user to get the token
+    response = client.post(
+        url_for("auth_bp.login"),
+        json={"username": admin_data["username"], "password": admin_data["password"]},
+    )
+    return response.json["access_token"]
