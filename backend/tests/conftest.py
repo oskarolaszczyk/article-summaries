@@ -1,4 +1,5 @@
 from datetime import timedelta
+from flask import url_for
 import pytest
 from article_summaries import create_app, db
 from article_summaries.models import User, UserType, Article
@@ -32,20 +33,50 @@ def client(app):
 
 
 @pytest.fixture()
-def new_user():
-    user = User(username="test", email="test@mail.com", password="password123")
+def user_data():
+    return {"username": "test", "email": "test@mail.com", "password": "password123"}
+
+
+@pytest.fixture()
+def admin_data():
+    return {"username": "admin", "email": "admin@mail.com", "password": "password123"}
+
+
+@pytest.fixture()
+def new_user(user_data):
+    user = User(
+        username=user_data["username"],
+        email=user_data["email"],
+        password=user_data["password"],
+    )
     return user
 
 
 @pytest.fixture()
-def new_user_admin():
+def new_user_db(new_user):
+    db.session.add(new_user)
+    db.session.commit()
+
+    return new_user
+
+
+@pytest.fixture()
+def new_user_admin(admin_data):
     user = User(
-        username="admin",
-        email="admin@mail.com",
-        password="password123",
+        username=admin_data["username"],
+        email=admin_data["email"],
+        password=admin_data["password"],
         type=UserType.ADMIN,
     )
     return user
+
+
+@pytest.fixture()
+def new_user_admin_db(new_user_admin):
+    db.session.add(new_user_admin)
+    db.session.commit()
+
+    return new_user_admin
 
 
 @pytest.fixture()
@@ -57,5 +88,8 @@ def new_article(new_user):
 
 
 @pytest.fixture()
-def user_data():
-    return {"username": "test", "email": "test@mail.com", "password": "password123"}
+def new_article_db(new_article):
+    db.session.add(new_article)
+    db.session.commit()
+
+    return new_article
