@@ -59,6 +59,24 @@ class SummaryBehavior(SequentialTaskSet):
                 self.article_content = response.json().get("content")
             else:
                 response.failure("Failed to scrape article")
+                
+    @task(1)
+    def generate_summary(self):
+        if not hasattr(self, 'article_content'):
+            self.scrape_article()  # Ensure we have the article content
+
+        headers = {"Content-Type": "application/json"}
+        data = {
+            "txt": self.article_content,
+            "sentences": 100
+        }
+        with self.client.post("/summary/generate", headers=headers, data=json.dumps(data), catch_response=True) as response:
+            if response.status_code == 200 and "summary" in response.json():
+                response.success()
+                self.summary_id = response.json().get("summary_id")
+            else:
+                response.failure("Failed to generate summary")
+    
     @task(2)
     def stop(self):
         self.interrupt()
