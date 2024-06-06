@@ -1,4 +1,4 @@
-from locust import HttpUser, TaskSet, task, between
+from locust import HttpUser, TaskSet, task, between, SequentialTaskSet
 import json
 import string
 import random
@@ -7,7 +7,7 @@ def random_string(length=8):
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(length))
 
-class AuthBehavior(TaskSet):
+class AuthBehavior(SequentialTaskSet):
 
     def on_start(self):
         self.username = f"user_{random_string()}"
@@ -40,10 +40,33 @@ class AuthBehavior(TaskSet):
     @task(1)
     def view_protected(self):
         self.client.get("/api/auth/protected", headers={"Authorization": f"Bearer {self.access_token}"})
-
+        
+    @task(2)
+    def stop(self):
+        self.interrupt()
+        
     def logout(self):
         self.client.post("/api/auth/logout", headers={"Authorization": f"Bearer {self.access_token}"})
 
+class SummaryBehavior(SequentialTaskSet):
+
+    @task(1)
+    def scrape_article(self):
+        url = "https://en.wikipedia.org/wiki/World_War_II"
+        with self.client.get(f"/article/scrape?url={url}", catch_response=True) as response:
+            if response.status_code == 200 and "title" in response.json() and "content" in response.json():
+                response.success()
+                self.article_content = response.json().get("content")
+            else:
+                response.failure("Failed to scrape article")
+    @task(2)
+    def stop(self):
+        self.interrupt()
+        
+class UserBehaviour(SequentialTaskSet):
+    tasks = [AuthBehavior, SummaryBehavior]
+
 class WebsiteUser(HttpUser):
-    tasks = [AuthBehavior]
+    host = "http://localhost:8000"
+    tasks = [UserBehaviour]
     wait_time = between(1, 5)
