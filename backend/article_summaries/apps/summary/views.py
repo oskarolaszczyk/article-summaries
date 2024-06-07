@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 
-from article_summaries.apps.summary.summarizers.Wadim import summarize, calc_idf
+from article_summaries.apps.summary.functions import summarize, calc_idf
 from article_summaries.models import db, Summary
 
 import re
