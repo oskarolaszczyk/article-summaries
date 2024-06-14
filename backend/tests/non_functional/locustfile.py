@@ -85,6 +85,6 @@ class UserBehaviour(SequentialTaskSet):
     tasks = [AuthBehavior, SummaryBehavior]
 
 class WebsiteUser(HttpUser):
-    host = "http://localhost:8000"
+    host = "http://localhost:5000"
     tasks = [UserBehaviour]
     wait_time = between(1, 5)
