@@ -28,4 +28,6 @@ class DevConfig(Config):
 class TestConfig(Config):
     FLASK_ENV = "testing"
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = "postgresql://postgres:postgres@localhost:5432/postgres"
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@db:5432/{os.getenv('POSTGRES_DB')}"
+    
