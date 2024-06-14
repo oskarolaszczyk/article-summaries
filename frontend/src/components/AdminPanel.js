@@ -31,7 +31,7 @@ const AdminPanel = () => {
 
   const fetchAllData = async () => {
     try {
-        const response = await axiosInstance.get('http://127.0.0.1:8000/admin/users', {
+        const response = await axiosInstance.get('http://127.0.0.1:5000/admin/users', {
           params: { isAdmin: isAdmin }
       });
         setUsers(response.data);
@@ -39,7 +39,7 @@ const AdminPanel = () => {
         console.error('Error fetching users: ', error);
     }
     try {
-        const response = await axiosInstance.get('http://127.0.0.1:8000/admin/articles', {
+        const response = await axiosInstance.get('http://127.0.0.1:5000/admin/articles', {
           params: { isAdmin: isAdmin }
       });
         setArticles(response.data);
@@ -47,7 +47,7 @@ const AdminPanel = () => {
         console.error('Error fetching articles: ', error);
     }
     try {
-      const response = await axiosInstance.get('http://127.0.0.1:8000/admin/summaries', {
+      const response = await axiosInstance.get('http://127.0.0.1:5000/admin/summaries', {
         params: { isAdmin: isAdmin }
     });
       setSummaries(response.data);
