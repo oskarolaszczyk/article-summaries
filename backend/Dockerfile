@@ -1,49 +1,38 @@
-FROM python:3.11.8 as python-base
+# Use an official Python runtime as a parent image
+FROM python:3.11.8-slim
 
-# https://python-poetry.org/docs#ci-recommendations 
-#TODO change poetry version later
-ENV POETRY_VERSION=1.8.1 
-ENV POETRY_HOME=/opt/poetry
-ENV POETRY_VENV=/opt/poetry-venv
+# Set environment variables
 ENV PIP_DISABLE_PIP_VERSION_CHECK 1
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV POETRY_VERSION=1.8.1
 
-# Tell Poetry where to place its cache and virtual environment
-ENV POETRY_CACHE_DIR=/opt/.cache
+# Set the working directory in the container
+WORKDIR /code
 
-# Create stage for Poetry installation
-FROM python-base as poetry-base
+# Install system dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        gcc \
+        python3-dev \
+        libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Creating a virtual environment just for poetry and install it with pip
-RUN python3 -m venv $POETRY_VENV \
-    && $POETRY_VENV/bin/pip install -U pip setuptools \
-    && $POETRY_VENV/bin/pip install poetry==${POETRY_VERSION}
+# Install Poetry
+RUN pip install poetry==${POETRY_VERSION}
 
-# Create a new stage from the base python image
-FROM python-base as example-app
 
-# Copy Poetry to app image
-COPY --from=poetry-base ${POETRY_VENV} ${POETRY_VENV}
+# Copy and install Python dependencies
+COPY poetry.lock pyproject.toml /code/
 
-# Add Poetry to PATH
-ENV PATH="${PATH}:${POETRY_VENV}/bin"
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-interaction --no-ansi
 
-WORKDIR /app
+# Copy the Flask project files into the working directory
+COPY . /code/
 
-# Copy Dependencies
-COPY poetry.lock pyproject.toml ./
+# Expose the port Flask runs on
+EXPOSE 5000
 
-# [OPTIONAL] Validate the project is properly configured
-# RUN poetry check
-
-# Install Dependencies
-RUN poetry install --no-interaction --no-cache 
-# RUN poetry install --no-interaction --no-cache --without dev
-
-# Copy Application
-COPY . /app
-
-# Run Application
-EXPOSE 8000
+# Command to run Flask server
 CMD [ "poetry", "run", "python", "app.py"]

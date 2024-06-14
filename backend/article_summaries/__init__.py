@@ -2,7 +2,6 @@ from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
-from article_summaries.models import db, User, UserType
 from article_summaries.apps.auth.blocklist import BLOCKLIST
 from flask_migrate import Migrate
 
@@ -10,10 +9,12 @@ jwt = JWTManager()
 bcrypt = Bcrypt()
 migrate = Migrate()
 
+from article_summaries.models import db, User, UserType
+
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object("config.DevConfig")
+    app.config.from_object("config.TestConfig")
 
     db.init_app(app)
     jwt.init_app(app)
@@ -40,7 +41,7 @@ def create_app():
         )
 
     @jwt.invalid_token_loader
-    def invalid_token_callback(jwt_header, jwt_payload):
+    def invalid_token_callback(jwt_header):
         return (
             jsonify(
                 {"message": "Signature verification failed.", "error": "invalid_token"}
@@ -49,7 +50,7 @@ def create_app():
         )
 
     @jwt.unauthorized_loader
-    def missing_token_callback(jwt_header, jwt_payload):
+    def missing_token_callback(jwt_header):
         return (
             jsonify(
                 {
@@ -77,7 +78,7 @@ def create_app():
             ),
             401,
         )
-    
+
     @jwt.user_lookup_loader
     def user_lookup_callback(_jwt_header, jwt_data):
         identity = jwt_data["sub"]
@@ -90,7 +91,7 @@ def create_app():
     from article_summaries.apps.account.views import account_bp
     from article_summaries.apps.admin.views import admin_bp
 
-    app.register_blueprint(core_bp, url_prefix="/api")
+    app.register_blueprint(core_bp)
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(summary_bp, url_prefix="/summary")
     app.register_blueprint(article_bp, url_prefix="/article")

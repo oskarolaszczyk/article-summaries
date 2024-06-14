@@ -1,7 +1,7 @@
 from functools import wraps
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required
-from article_summaries.models import db, Summary, Article, User
+from flask_jwt_extended import jwt_required, current_user
+from article_summaries.models import db, Summary, Article, User, UserType
 
 admin_bp = Blueprint(
     "admin_bp", __name__, template_folder="templates", static_folder="static"
@@ -11,13 +11,15 @@ admin_bp = Blueprint(
 def admin_permissions(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        is_admin = request.args.get("isAdmin")
+        is_admin = current_user.type == UserType.ADMIN
         if not is_admin:
-            return jsonify("error:" "Admin privileges required!"), 403
+            return jsonify({"error": "Admin privileges required!"}), 403
         return f(*args, **kwargs)
+
     return decorated
 
-@admin_bp.route("/users", methods=['GET'])
+
+@admin_bp.route("/users", methods=["GET"])
 @jwt_required()
 @admin_permissions
 def get_all_users():
@@ -30,16 +32,19 @@ def get_all_users():
             "username": user.username,
             "email": user.email,
             "type": user.type.name,
-            "created_on": user.created_on
-        } for user in users
+            "created_on": user.created_on,
+        }
+        for user in users
     ]
     return jsonify(res), 200
 
-@admin_bp.route("/articles", methods=['GET'])
+
+@admin_bp.route("/articles", methods=["GET"])
 @jwt_required()
 @admin_permissions
 def get_all_articles():
     articles = Article.query.all()
+    print(articles)
     if not articles:
         return jsonify({"error": "No articles found in database"}), 200
     res = [
@@ -48,12 +53,14 @@ def get_all_articles():
             "user_id": article.user_id,
             "title": article.title,
             "source_url": article.source_url,
-            "date_added": article.date_added
-        } for article in articles
+            "date_added": article.date_added,
+        }
+        for article in articles
     ]
     return jsonify(res), 200
 
-@admin_bp.route("/summaries", methods=['GET'])
+
+@admin_bp.route("/summaries", methods=["GET"])
 @jwt_required()
 @admin_permissions
 def get_article_summaries():
@@ -67,8 +74,8 @@ def get_article_summaries():
             "content": summary.content,
             "rating": summary.rating,
             "model_type": summary.model_type.name,
-            "date_generated": summary.date_generated
-        } for summary in summaries
+            "date_generated": summary.date_generated,
+        }
+        for summary in summaries
     ]
     return jsonify(res), 200
-

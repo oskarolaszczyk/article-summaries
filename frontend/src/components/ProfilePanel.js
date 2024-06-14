@@ -22,7 +22,7 @@ export default function ProfilePanel() {
       setUsername(data.username);
       setEmail(data.email);
       setUserId(data.id);
-      axiosInstance.get(`http://127.0.0.1:8000/account/${data.id}/articles`)
+      axiosInstance.get(`http://127.0.0.1:5000/account/${data.id}/articles`)
         .then((res) => {
           setArticles(res.data);
         })
@@ -48,7 +48,7 @@ export default function ProfilePanel() {
       password: newPassword,
     }
     try {
-      const response = await axiosInstance.put(`http://127.0.0.1:8000/account/${userId}`, profile_data);
+      const response = await axiosInstance.put(`http://127.0.0.1:5000/account/${userId}`, profile_data);
       console.log(response.data.message);
     } catch (error) {
       console.error("Error while updating profile data: ", error);
@@ -57,7 +57,7 @@ export default function ProfilePanel() {
 
   const handleAccordionOpen = (articleId) => {
     if(!summaries[articleId]) {
-      axiosInstance.get(`http://127.0.0.1:8000/account/summaries/${articleId}`)
+      axiosInstance.get(`http://127.0.0.1:5000/account/summaries/${articleId}`)
         .then((res) => {
         setSummaries(prevSummaries => ({ ...prevSummaries, [articleId]: res.data}));
       })

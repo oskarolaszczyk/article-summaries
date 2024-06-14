@@ -43,7 +43,7 @@ const ArticlePanel = () => {
     const fetchArticleContent = async () => {
         if (!articleUrl) return;
         try {
-            const response = await axios.get('http://127.0.0.1:8000/article/scrape', {
+            const response = await axios.get('http://127.0.0.1:5000/article/scrape', {
                 params: { url: articleUrl }
             });
             const data = response.data
@@ -69,7 +69,7 @@ const ArticlePanel = () => {
                     sentences: numSentences
                 });
             } else {
-                response = await axios.post("http://127.0.0.1:8000/summary/generate", {
+                response = await axios.post("http://127.0.0.1:5000/summary/generate", {
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -107,7 +107,7 @@ const ArticlePanel = () => {
         };
 
         try {
-            const response = await axiosInstance.post('http://127.0.0.1:8000/article/', article);
+            const response = await axiosInstance.post('http://127.0.0.1:5000/article/', article);
             console.log(response.data.message);
             const summary = {
                 article_id: response.data.article_id,
@@ -116,7 +116,7 @@ const ArticlePanel = () => {
                 model_type: selectedModel === '1' ? 'MEANINGCLOUD' : 'OUR_MODEL',
             }
             try {
-                const res = await axiosInstance.post('http://127.0.0.1:8000/summary/', summary);
+                const res = await axiosInstance.post('http://127.0.0.1:5000/summary/', summary);
                 console.log(res.data.message);
             } catch (error) {
                 console.error("There was an error while saving the summary!", error);

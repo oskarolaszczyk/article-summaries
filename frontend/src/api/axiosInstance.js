@@ -4,7 +4,7 @@ async function refreshAccessToken() {
   const refreshToken = localStorage.getItem('refreshToken')
   
   try {
-    const response = await axios.post('http://localhost:8000/api/auth/refresh', {
+    const response = await axios.post('http://localhost:5000/api/auth/refresh', {
       refresh_token: refreshToken,
     }, {
       headers: {
@@ -22,7 +22,7 @@ async function refreshAccessToken() {
 }
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: 'http://localhost:5000/api',
 })
 
 axiosInstance.interceptors.response.use(
