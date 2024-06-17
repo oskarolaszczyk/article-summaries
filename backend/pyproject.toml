@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "backend"
+version = "0.1.0"
+description = ""
+authors = ["oskarolaszczyk <oskarolaszczyk@gmail.com>"]
+readme = "README.md"
+packages = [
+    { include = "article_summaries"}
+]
+
+[tool.poetry.dependencies]
+python = "^3.11.8"
+flask = "^3.0.3"
+python-dotenv = "^1.0.1"
+flask-jwt-extended = "^4.6.0"
+flask-cors = "^4.0.0"
+flask-sqlalchemy = "^3.1.1"
+psycopg2 = "^2.9.9"
+flask-bcrypt = "^1.0.1"
+nltk = "^3.8.1"
+goose3 = "^3.1.19"
+flask-migrate = "^4.0.7"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.1"
+pytest-cov = "^5.0.0"
+locust = "^2.28.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

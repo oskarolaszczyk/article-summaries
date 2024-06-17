@@ -1,0 +1,29 @@
+.title {
+    text-align: center;
+    color: violet;
+}
+
+.scrollable-accordion-body {
+    max-height: 300px; 
+    overflow-y: auto; 
+}
+
+.acordeon-box {
+    max-height: 553px; 
+    overflow-y: auto;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+}
+
+.profile-box {
+    max-height: 553px; 
+    width: 100%;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+    border: 1px solid #ced4da;
+    justify-content: center;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}

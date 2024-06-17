@@ -1,0 +1,42 @@
+.banner-image {
+  background-image: url('../resources/mainPageBanner.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 200px;
+}
+  
+.main-page h1 {
+  text-align: center;
+}
+  
+.main-page p {
+  text-align: center;
+}
+  
+.main-page Button {
+  display: block;
+  margin: 20px auto;
+}
+
+.text-img {
+  color: rgb(241, 80, 207);
+  text-shadow: 
+        -1px -1px 0 rgb(102, 2, 122),  
+        1px -1px 0 rgb(248, 132, 223),
+        -1px 1px 0 rgb(102, 2, 122),
+        1px 1px 0 rgb(102, 2, 122);
+}
+
+.main-part {
+  padding: 50px;
+  background-color: #f6fafe;
+}
+
+.picture-container {
+  padding-top: 80%;
+  background-image: url('../resources/mainPageImg.jpg');
+  background-size: 75%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
