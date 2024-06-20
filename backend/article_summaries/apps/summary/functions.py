@@ -3,9 +3,35 @@ import re
 import math
 
 import nltk
+import json
+
+from flask import jsonify
+
+from article_summaries.apps.summary.summarizers import Luhn, LSA
 
 ps = nltk.stem.PorterStemmer();
 
+def wadim_summarize(text, num_sentences):
+    try:
+        with open("idf.json", "r") as f:
+            idf = json.load(f)
+    except FileNotFoundError:
+        print("Calculating IDF...")
+        try:
+            idf = calc_idf('./apps/summary/dataset.csv')
+            with open("idf.json", "w") as f:
+                json.dump(idf, f)
+        except FileNotFoundError as e:
+            return jsonify({ "error": f"Internal server error {e}" }), 500
+
+    summary = summarize(text, idf, num_sentences)
+    return summary
+
+def lsa_summarize(text, num_sentences):
+    return LSA.summarize(text, num_sentences)
+
+def luhn_summarize(text, num_sentences):
+    return Luhn.summarize(text, num_sentences)
 def tokenize(line):
     tokens = re.sub('[^a-zA-Z]', ' ', str(line)).lower().split(' ')
     tokens = [ps.stem(t) for t in tokens]
