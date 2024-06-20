@@ -107,3 +107,18 @@ def logout():
 @jwt_required()
 def protected():
     return jsonify({"message": "Access to protected endpoint."}), 200
+
+
+@auth_bp.route("/who-am-i", methods=["GET"])
+@jwt_required()
+def who_am_i():
+    return (
+        jsonify(
+            id=current_user.id,
+            username=current_user.username,
+            email=current_user.email,
+            type=current_user.type.name,
+            created_on=current_user.created_on,
+        ),
+        200,
+    )

@@ -1,4 +1,4 @@
-import { Accordion, Button, Card, Col, Container, Form, Row, Table } from 'react-bootstrap';
+import { Card, Col, Container, Row, Table } from 'react-bootstrap';
 import { useContext, useEffect, useState } from 'react';
 import axiosInstance from '../api/axiosInstance';
 import { AuthContext } from "./AuthContext";
@@ -11,14 +11,14 @@ const AdminPanel = () => {
   const [users, setUsers] = useState([]);
   const [articles, setArticles] = useState([]);
   const [summaries, setSummaries] = useState([]);
-  
+
 
   const handleSwitch = (choice) => {
     if (choice === 'users') {
       setManageUsers(true);
       setShowArticles(false);
       setShowSummaries(false);
-    } else if ( choice === 'articles') {
+    } else if (choice === 'articles') {
       setShowArticles(true);
       setManageUsers(false);
       setShowSummaries(false);
@@ -29,36 +29,35 @@ const AdminPanel = () => {
     }
   }
 
-  const fetchAllData = async () => {
-    try {
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
         const response = await axiosInstance.get('http://127.0.0.1:5000/admin/users', {
           params: { isAdmin: isAdmin }
-      });
+        });
         setUsers(response.data);
-    } catch (error) {
+      } catch (error) {
         console.error('Error fetching users: ', error);
-    }
-    try {
+      }
+      try {
         const response = await axiosInstance.get('http://127.0.0.1:5000/admin/articles', {
           params: { isAdmin: isAdmin }
-      });
+        });
         setArticles(response.data);
-    } catch (error) {
+      } catch (error) {
         console.error('Error fetching articles: ', error);
-    }
-    try {
-      const response = await axiosInstance.get('http://127.0.0.1:5000/admin/summaries', {
-        params: { isAdmin: isAdmin }
-    });
-      setSummaries(response.data);
-  } catch (error) {
-      console.error('Error fetching summaries: ', error);
-  }
-};
-
-useEffect(() => {
-  fetchAllData();
-}, []);
+      }
+      try {
+        const response = await axiosInstance.get('http://127.0.0.1:5000/admin/summaries', {
+          params: { isAdmin: isAdmin }
+        });
+        setSummaries(response.data);
+      } catch (error) {
+        console.error('Error fetching summaries: ', error);
+      }
+    };
+    fetchAllData();
+  }, [isAdmin]);
 
   return (
     <Container fluid className="d-flex mx-0">
