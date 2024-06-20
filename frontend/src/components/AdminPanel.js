@@ -1,4 +1,4 @@
-import { Card, Col, Container, Row, Table } from 'react-bootstrap';
+import { Button, Card, Col, Container, Row, Table } from 'react-bootstrap';
 import { useContext, useEffect, useState } from 'react';
 import axiosInstance from '../api/axiosInstance';
 import { AuthContext } from "./AuthContext";
@@ -11,6 +11,7 @@ const AdminPanel = () => {
   const [users, setUsers] = useState([]);
   const [articles, setArticles] = useState([]);
   const [summaries, setSummaries] = useState([]);
+  const [expandedSummaries, setExpandedSummaries] = useState({});
 
 
   const handleSwitch = (choice) => {
@@ -59,13 +60,60 @@ const AdminPanel = () => {
     fetchAllData();
   }, [isAdmin]);
 
+  const handleDeleteUser = async (id) => {
+    try {
+      await axiosInstance.delete(`http://127.0.0.1:5000/admin/users/${id}`);
+      setUsers(users.filter(user => user.id !== id));
+    } catch (error) {
+      console.error('Error deleting user: ', error);
+    }
+  };
+
+  const handleDeleteArticle = async (id) => {
+    try {
+      await axiosInstance.delete(`http://127.0.0.1:5000/admin/articles/${id}`);
+      setArticles(articles.filter(article => article.id !== id));
+    } catch (error) {
+      console.error('Error deleting article: ', error);
+    }
+  };
+
+  const handleDeleteSummary = async (id) => {
+    try {
+      await axiosInstance.delete(`http://127.0.0.1:5000/admin/summaries/${id}`);
+      setSummaries(summaries.filter(summary => summary.id !== id));
+    } catch (error) {
+      console.error('Error deleting summary: ', error);
+    }
+  };
+
+  const truncateContent = (content, length = 30) => {
+    if (content.length <= length) return content;
+    return content.substring(0, length) + " ...";
+  };
+
+  const handleShowMore = (id) => {
+    setExpandedSummaries((prev) => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+  
+  if (!isAdmin) {
+    return (
+      <div style={{ margin: '40px auto', textAlign: 'center' }}>
+        <h1>You do not have permission to access this page.</h1>
+      </div>
+    );
+  }
+
   return (
     <Container fluid className="d-flex mx-0">
       <Row className="container-fluid">
         <Col md={2}>
           <Card className="profile-box" style={{ padding: 0 }}>
             <Card.Body>
-              <Card.Text onClick={() => handleSwitch('users')} style={{ cursor: 'pointer' }}>Manage users</Card.Text>
+              <Card.Text onClick={() => handleSwitch('users')} style={{ cursor: 'pointer' }}>Show users</Card.Text>
               <Card.Text onClick={() => handleSwitch('articles')} style={{ cursor: 'pointer' }}>Show articles</Card.Text>
               <Card.Text onClick={() => handleSwitch('summaries')} style={{ cursor: 'pointer' }}>Show summaries</Card.Text>
             </Card.Body>
@@ -83,6 +131,7 @@ const AdminPanel = () => {
                     <th>Email</th>
                     <th>Type</th>
                     <th>Created On</th>
+                    <th>Actions</th> 
                   </tr>
                 </thead>
                 <tbody>
@@ -93,6 +142,9 @@ const AdminPanel = () => {
                       <td>{user.email}</td>
                       <td>{user.type}</td>
                       <td>{new Date(user.created_on).toLocaleString()}</td>
+                      <td>
+                        <Button variant="danger" onClick={() => handleDeleteUser(user.id)}>Delete</Button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -111,6 +163,7 @@ const AdminPanel = () => {
                     <th>Title</th>
                     <th>Source URL</th>
                     <th>Date Added</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -121,6 +174,9 @@ const AdminPanel = () => {
                       <td>{article.title}</td>
                       <td><a href={article.source_url} target="_blank" rel="noopener noreferrer">{article.source_url}</a></td>
                       <td>{new Date(article.date_added).toLocaleString()}</td>
+                      <td>
+                        <Button variant="danger" onClick={() => handleDeleteArticle(article.id)}>Delete</Button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -140,6 +196,7 @@ const AdminPanel = () => {
                     <th>Rating</th>
                     <th>Model</th>
                     <th>Date Generated</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -147,10 +204,24 @@ const AdminPanel = () => {
                     <tr key={summary.id}>
                       <td>{summary.id}</td>
                       <td>{summary.article_id}</td>
-                      <td>{summary.content}</td>
+                      <td>
+                        {expandedSummaries[summary.id] 
+                          ? summary.content 
+                          : truncateContent(summary.content)}
+                        <Button 
+                          variant="link" 
+                          onClick={() => handleShowMore(summary.id)}
+                          style={{ padding: '0 5px' }}
+                        >
+                          {expandedSummaries[summary.id] ? "Show Less" : "Show More"}
+                        </Button>
+                      </td>
                       <td>{summary.rating ? 'Positive' : 'Negative'}</td>
                       <td>{summary.model_type}</td>
                       <td>{new Date(summary.date_generated).toLocaleString()}</td>
+                      <td>
+                        <Button variant="danger" onClick={() => handleDeleteSummary(summary.id)}>Delete</Button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

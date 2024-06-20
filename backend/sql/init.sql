@@ -26,3 +26,8 @@ CREATE TABLE summaries (
     model_type ModelType NOT NULL,
     date_generated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+INSERT INTO users(username, email, password, type) VALUES
+    ('admin', 'admin@example.com', '$2b$12$U7rOuUQ.Xh0TZtQHDuqbT.sCfQxtLn2BJDJHMdbSXlTIMla.VqLfC', 'ADMIN'),
+    ('test', 'test@example.com', '$2b$12$xoOCld0dN/Qjb6IJ4/AhseaTe/dPMNW7fSvXTEbXa5.nqtccs2cbq', 'USER'),
+    ('test2', 'test2@example.com', '$2b$12$xoOCld0dN/Qjb6IJ4/AhseaTe/dPMNW7fSvXTEbXa5.nqtccs2cbq', 'USER');

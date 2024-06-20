@@ -23,7 +23,7 @@ def admin_permissions(f):
 @jwt_required()
 @admin_permissions
 def get_all_users():
-    users = User.query.all()
+    users = User.query.filter_by(type="USER").all()
     if not users:
         return jsonify({"message": "No users in database"}), 200
     res = [
@@ -37,6 +37,24 @@ def get_all_users():
         for user in users
     ]
     return jsonify(res), 200
+
+
+@admin_bp.route("/users/<int:user_id>", methods=["DELETE"])
+@jwt_required()
+@admin_permissions
+def delete_user(user_id):
+    user = User.query.get(user_id)
+    
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"message": f"User {user_id} has been deleted"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "An error occurred while deleting the user", "error": str(e)}), 500
 
 
 @admin_bp.route("/articles", methods=["GET"])
@@ -59,6 +77,23 @@ def get_all_articles():
     ]
     return jsonify(res), 200
 
+@admin_bp.route("/articles/<int:article_id>", methods=["DELETE"])
+@jwt_required()
+@admin_permissions
+def delete_article(article_id):
+    article = Article.query.get(article_id)
+    if not article:
+        return jsonify({"error": "Article not found"}), 404
+    
+    try:
+        db.session.delete(article)
+        db.session.commit()
+        return jsonify({"message": f"Article {article_id} has been deleted"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "An error occurred while deleting the article", "details": str(e)}), 500
+
+
 
 @admin_bp.route("/summaries", methods=["GET"])
 @jwt_required()
@@ -79,3 +114,19 @@ def get_article_summaries():
         for summary in summaries
     ]
     return jsonify(res), 200
+
+@admin_bp.route("/summaries/<int:summary_id>", methods=["DELETE"])
+@jwt_required()
+@admin_permissions
+def delete_summary(summary_id):
+    summary = Summary.query.get(summary_id)
+    if not summary:
+        return jsonify({"error": "Summary not found"}), 404
+    
+    try:
+        db.session.delete(summary)
+        db.session.commit()
+        return jsonify({"message": f"Summary {summary_id} has been deleted"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "An error occurred while deleting the summary", "details": str(e)}), 500
