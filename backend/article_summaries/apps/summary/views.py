@@ -1,13 +1,9 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 
-from article_summaries.apps.summary.functions import summarize, calc_idf
-from article_summaries.models import db, Summary
+from article_summaries.apps.summary.functions import wadim_summarize, lsa_summarize, luhn_summarize
+from article_summaries.models import db, Summary, ModelType
 
-import re
-import math
-import nltk
-import json
 
 summary_bp = Blueprint(
     "summary_bp", __name__, template_folder="templates", static_folder="static"
@@ -41,19 +37,19 @@ def summarize_endpoint():
     if not 'sentences' in req:
         return jsonify({ "error": "Number of sentences not provided" }), 400
 
-    try:
-        with open("idf.json", "r") as f:
-            idf = json.load(f)
-    except FileNotFoundError:
-        print("Calculating IDF...")
-        try:
-            idf = calc_idf('./apps/summary/dataset.csv')
-            with open("idf.json", "w") as f:
-                json.dump(idf, f)
-        except FileNotFoundError as e:
-            return jsonify({ "error": f"Internal server error {e}" }), 500
+    if not 'modelType' in req:
+        return jsonify({"error": "Model type not provided"}), 400
 
-    summary = summarize(req['txt'], idf, req['sentences'])
+    try:
+        model_type = ModelType[req.get('modelType')]
+    except KeyError:
+        return jsonify({"error": "Invalid summarization model"}), 400
+    if model_type == ModelType.TF_IDF:
+        summary = wadim_summarize(req['txt'], int(req['sentences']))
+    elif model_type == ModelType.LSA:
+        summary = lsa_summarize(req['txt'], int(req['sentences']))
+    elif model_type == ModelType.LUHN:
+        summary = luhn_summarize(req['txt'], int(req['sentences']))
 
     return jsonify({ "summary": summary })
 
