@@ -59,7 +59,7 @@ def summarize(txt, max_no_of_sentences=10):
     ret_cnt = min(max_no_of_sentences, len(sentence_list))
 
     for i in range(ret_cnt):
-        ret_list.append('* ' + sentence_weight[i][1] + '.')
+        ret_list.append(' ' + sentence_weight[i][1] + '.')
 
     return ret_list
 

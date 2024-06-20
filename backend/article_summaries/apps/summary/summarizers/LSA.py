@@ -5,7 +5,7 @@ from collections import namedtuple
 from nltk.corpus import stopwords
 import numpy as np
 from numpy.linalg import svd as singular_value_decomposition
-from SumUtil import get_words, get_sentences
+from article_summaries.apps.summary.summarizers.SumUtil import get_words, get_sentences
 import nltk
 
 nltk.download("punkt", quiet=True)
@@ -89,7 +89,7 @@ def get_best_sentences(sentences, count, rating, *args, **kwargs):
     # sort sentences by their order in document
     infos = sorted(infos, key=attrgetter("order"))
 
-    return tuple(i.sentence for i in infos)
+    return tuple(i.sentence + '. ' for i in infos)
 def summarize(text, max_no_of_sentences=10):
     dictionary = create_dict(text, stop_words=stopwords.words('english'))
     sentences = get_sentences(text)

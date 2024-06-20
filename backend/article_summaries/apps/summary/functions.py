@@ -11,6 +11,9 @@ from article_summaries.apps.summary.summarizers import Luhn, LSA
 
 ps = nltk.stem.PorterStemmer();
 
+nltk.download("punkt", quiet=True)
+
+
 def wadim_summarize(text, num_sentences):
     try:
         with open("idf.json", "r") as f:
@@ -27,11 +30,15 @@ def wadim_summarize(text, num_sentences):
     summary = summarize(text, idf, num_sentences)
     return summary
 
+
 def lsa_summarize(text, num_sentences):
     return LSA.summarize(text, num_sentences)
 
+
 def luhn_summarize(text, num_sentences):
     return Luhn.summarize(text, num_sentences)
+
+
 def tokenize(line):
     tokens = re.sub('[^a-zA-Z]', ' ', str(line)).lower().split(' ')
     tokens = [ps.stem(t) for t in tokens]
@@ -95,9 +102,10 @@ def rank_sentence(sentence, idf):
 
 
 def summarize(article, idf, num_of_sentences):
-    article = "".join(line.rstrip("\n") for line in article)
-    sentences_ranked = {k: rank_sentence(k, idf) for k in article.split(". ")}
+    article = re.sub(r'\ ?\(.*\)|\[\d+\]', "", article)
+    sentences = nltk.sent_tokenize(article)
+    sentences_ranked = {k: rank_sentence(k, idf) for k in sentences}
     sentences_ranked = {key: value
         for key, value in sorted(sentences_ranked.items(),
                                  key=lambda item: item[1])}
-    return ". ".join(list(sentences_ranked.keys())[:int(num_of_sentences)]) + "."
+    return " ".join(list(sentences_ranked.keys())[:int(num_of_sentences)])

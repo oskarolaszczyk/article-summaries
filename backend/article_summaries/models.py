@@ -13,7 +13,7 @@ class UserType(enum.Enum):
 
 class ModelType(enum.Enum):
     MEANINGCLOUD = 1
-    OUR_MODEL = 2
+    TF_IDF = 2
     LSA = 3
     LUHN = 4
 

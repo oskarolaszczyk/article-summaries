@@ -12,7 +12,7 @@ require("../resources/times-normal.js");
 
 const ArticlePanel = () => {
     const [articleUrl, setArticleUrl] = useState('');
-    const [selectedModel, setSelectedModel] = useState('2');
+    const [selectedModel, setSelectedModel] = useState('TF_IDF');
     const [articleTitle, setArticleTitle] = useState('Summary');
     const [articleData, setArticleData] = useState('');
     const [generatedSummary, setGeneratedSummary] = useState('');
@@ -60,7 +60,7 @@ const ArticlePanel = () => {
             let response;
             let res;
             const extraSentences = 5;
-            if (selectedModel === "1") {
+            if (selectedModel === "MEANINGCLOUD") {
                 const formdata = new FormData();
                 formdata.append("key", "86794c53debf6b6a67eaf2a93580afd1");
                 formdata.append("txt", articleText);
@@ -79,10 +79,11 @@ const ArticlePanel = () => {
                         'Content-Type': 'application/json'
                     },
                     txt: articleText,
-                    sentences: numSentences + extraSentences
+                    sentences: numSentences + extraSentences,
+                    modelType: selectedModel
                 });
                 res = await response.data.summary;
-                res = res.split(".").sort(() => 0.5 - Math.random()).slice(0, numSentences).join(". ");
+                //res = res.split(".").sort(() => 0.5 - Math.random()).slice(0, numSentences).join(". ");
             }
             setGeneratedSummary(res || "Summary could not be generated.");
 
@@ -120,7 +121,7 @@ const ArticlePanel = () => {
                 article_id: response.data.article_id,
                 content: generatedSummary,
                 rating: rating,
-                model_type: selectedModel === '1' ? 'MEANINGCLOUD' : 'OUR_MODEL',
+                model_type: selectedModel,
             }
             try {
                 const res = await axiosInstance.post('http://127.0.0.1:5000/summary/', summary);
@@ -167,8 +168,10 @@ const ArticlePanel = () => {
                                     onChange={handleModelChange}
                                 >
                                     <option>Open this select menu</option>
-                                    <option value="1">Meaninig Cloud model</option>
-                                    <option value="2">Our model</option>
+                                    <option value="MEANINGCLOUD">Meaninig Cloud model</option>
+                                    <option value="TF_IDF">tf-idf</option>
+                                    <option value="LSA">LSA</option>
+                                    <option value="LUHN">LUHN</option>
                                 </Form.Select>
                             </Form.Group>
                             <Form.Group className="my-4">

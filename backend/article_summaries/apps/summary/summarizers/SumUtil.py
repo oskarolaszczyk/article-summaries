@@ -1,4 +1,6 @@
 import re
+
+
 def get_sentences(txt):
     return txt.split('.')
 
