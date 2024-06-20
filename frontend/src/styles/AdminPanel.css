@@ -27,3 +27,10 @@
     padding-top: 15px;
     padding-bottom: 15px;
 }
+
+
+.text {
+    font-size: 40px; 
+    font-weight: bold; 
+    text-align: center;
+  }

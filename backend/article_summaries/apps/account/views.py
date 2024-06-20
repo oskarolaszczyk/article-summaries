@@ -1,5 +1,7 @@
+import re
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
+from email_validator import validate_email, EmailNotValidError
 from article_summaries import bcrypt
 from article_summaries.models import db, Summary, Article, User
 
@@ -53,6 +55,12 @@ def update_user_data(user_id):
         return jsonify({"error": "User not found"}), 404
     
     req = request.get_json()
+    try:
+        emailinfo = validate_email(req.get('email'), check_deliverability=True)
+        email = emailinfo.normalized
+    except EmailNotValidError as e:
+        response_body = {"error": "Provided email is invalid."}
+        return jsonify(response_body), 400
     
     old_password = req.get('old_password')
     
@@ -62,6 +70,19 @@ def update_user_data(user_id):
     username = req.get('username')
     password = req.get('password')
     email = req.get('email')
+
+    if len(password) < 8:
+        response_body = {"error": "Make sure your password is at least 8 letters"}
+        return jsonify(response_body), 400
+    elif re.search('[0-9]', password) is None:
+        response_body = {"error": "Make sure your password has number in it"}
+        return jsonify(response_body), 400
+    elif re.search('[A-Z]', password) is None:
+        response_body = {"error": "Make sure your password has capital letter in it"}
+        return jsonify(response_body), 400
+    elif not any(not c.isalnum() for c in password):
+        response_body = {"error": "Make sure your password has special character in it"}
+        return jsonify(response_body), 400
 
     if username:
         user.username = username

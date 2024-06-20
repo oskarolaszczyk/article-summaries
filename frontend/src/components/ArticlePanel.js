@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import "../styles/ArticlePanel.css";
 import { Button, ButtonGroup, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import { AiFillLike, AiFillDislike } from "react-icons/ai";
+import { IoIosRefresh } from "react-icons/io";
 import axiosInstance from '../api/axiosInstance.js'
 
 require("../resources/times-normal.js");
@@ -13,6 +14,7 @@ const ArticlePanel = () => {
     const [articleUrl, setArticleUrl] = useState('');
     const [selectedModel, setSelectedModel] = useState('2');
     const [articleTitle, setArticleTitle] = useState('Summary');
+    const [articleData, setArticleData] = useState('');
     const [generatedSummary, setGeneratedSummary] = useState('');
     const [numSentences, setNumSentences] = useState(10);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -56,6 +58,8 @@ const ArticlePanel = () => {
     const generateSummary = async (articleText) => {
         try {
             let response;
+            let res;
+            const extraSentences = 5;
             if (selectedModel === "1") {
                 const formdata = new FormData();
                 formdata.append("key", "86794c53debf6b6a67eaf2a93580afd1");
@@ -68,17 +72,19 @@ const ArticlePanel = () => {
                     txt: articleText,
                     sentences: numSentences
                 });
+                res = await response.data.summary;
             } else {
                 response = await axios.post("http://127.0.0.1:5000/summary/generate", {
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     txt: articleText,
-                    sentences: numSentences
+                    sentences: numSentences + extraSentences
                 });
+                res = await response.data.summary;
+                res = res.split(".").sort(() => 0.5 - Math.random()).slice(0, numSentences).join(". ");
             }
-            const res = await response.data;
-            setGeneratedSummary(res.summary || "Summary could not be generated.");
+            setGeneratedSummary(res || "Summary could not be generated.");
 
         } catch (error) {
             console.error('Error generating summary:', error);
@@ -91,10 +97,11 @@ const ArticlePanel = () => {
         setArticleTitle("");
         setGeneratedSummary("");
         setIsGenerating(true);
-        const articleData = await fetchArticleContent();
-        if (articleData) {
-            await generateSummary(articleData.content);
-            setArticleTitle(articleData.title);
+        const data = await fetchArticleContent();
+        setArticleData(data);
+        if (data) {
+            await generateSummary(data.content);
+            setArticleTitle(data.title);
         }
         setIsGenerating(false);
     };
@@ -124,6 +131,17 @@ const ArticlePanel = () => {
         } catch (error) {
             console.error("There was an error while saving the article!", error);
         }   
+    };
+
+    const handleRegenerate = async () => {
+        setArticleTitle("");
+        setGeneratedSummary("");
+        setIsGenerating(true);
+        if(articleData) {
+            await generateSummary(articleData.content);
+            setArticleTitle(articleData.title);
+        }
+        setIsGenerating(false);
     };
 
     return (
@@ -192,6 +210,9 @@ const ArticlePanel = () => {
                                 </Button>
                                 <Button className="me-1" disabled={generatedSummary === ''} onClick={() => {setRating(false)}}>
                                     <AiFillDislike />
+                                </Button>
+                                <Button className="me-1" disabled={generatedSummary === ''} onClick={handleRegenerate}>
+                                    <IoIosRefresh />
                                 </Button>
                             </ButtonGroup>
                             <Button disabled={rating === null} onClick={saveSummary} className="ms-auto">
