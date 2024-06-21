@@ -83,7 +83,7 @@ const ArticlePanel = () => {
                     modelType: selectedModel
                 });
                 res = await response.data.summary;
-                //res = res.split(".").sort(() => 0.5 - Math.random()).slice(0, numSentences).join(". ");
+                res = res.split(".").sort(() => 0.5 - Math.random()).slice(0, numSentences).join(". ");
             }
             setGeneratedSummary(res || "Summary could not be generated.");
 

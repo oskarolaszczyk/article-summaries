@@ -55,11 +55,6 @@ def summarize(txt, max_no_of_sentences=10):
 
     sentence_weight.sort(reverse=True)
     # print sentence_weight
-    ret_list = []
     ret_cnt = min(max_no_of_sentences, len(sentence_list))
 
-    for i in range(ret_cnt):
-        ret_list.append(' ' + sentence_weight[i][1] + '.')
-
-    return ret_list
-
+    return ' '.join(sentence_weight[i][1] + '.' for i in range(ret_cnt))

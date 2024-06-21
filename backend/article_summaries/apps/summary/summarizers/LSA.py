@@ -89,7 +89,9 @@ def get_best_sentences(sentences, count, rating, *args, **kwargs):
     # sort sentences by their order in document
     infos = sorted(infos, key=attrgetter("order"))
 
-    return tuple(i.sentence + '. ' for i in infos)
+    return ' '.join(i.sentence + '.' for i in infos)
+
+
 def summarize(text, max_no_of_sentences=10):
     dictionary = create_dict(text, stop_words=stopwords.words('english'))
     sentences = get_sentences(text)
