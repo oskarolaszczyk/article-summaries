@@ -6,11 +6,13 @@ import { Button, ButtonGroup, Card, Col, Container, Form, Row, Spinner } from 'r
 import { AiFillLike, AiFillDislike } from "react-icons/ai";
 import { IoIosRefresh } from "react-icons/io";
 import axiosInstance from '../api/axiosInstance.js'
+import { useToast } from './ToastProvider.js';
 
 require("../resources/times-normal.js");
 
 
 const ArticlePanel = () => {
+    const showToast = useToast();
     const [articleUrl, setArticleUrl] = useState('');
     const [selectedModel, setSelectedModel] = useState('TF_IDF');
     const [articleTitle, setArticleTitle] = useState('Summary');
@@ -51,6 +53,7 @@ const ArticlePanel = () => {
             const data = response.data
             return data;
         } catch (error) {
+            showToast('Error fetching article content.', 'danger');
             console.error('Error fetching article content: ', error);
         }
     };
@@ -88,8 +91,8 @@ const ArticlePanel = () => {
             setGeneratedSummary(res || "Summary could not be generated.");
 
         } catch (error) {
-            console.error('Error generating summary:', error);
-            setGeneratedSummary("Error generating summary.");
+            showToast('Error occurred while generating summary', 'danger');
+            console.error('Error occurred while generating summary:', error);
         }
     }
 
@@ -116,7 +119,6 @@ const ArticlePanel = () => {
 
         try {
             const response = await axiosInstance.post('http://127.0.0.1:5000/article/', article);
-            console.log(response.data.message);
             const summary = {
                 article_id: response.data.article_id,
                 content: generatedSummary,
@@ -124,12 +126,14 @@ const ArticlePanel = () => {
                 model_type: selectedModel,
             }
             try {
-                const res = await axiosInstance.post('http://127.0.0.1:5000/summary/', summary);
-                console.log(res.data.message);
+                await axiosInstance.post('http://127.0.0.1:5000/summary/', summary);
+                showToast('Summary saved successfully.', 'success');
             } catch (error) {
+                showToast('There was an error while saving the summary', 'danger');
                 console.error("There was an error while saving the summary!", error);
             }
         } catch (error) {
+            showToast('There was an error while saving the article', 'danger');
             console.error("There was an error while saving the article!", error);
         }   
     };

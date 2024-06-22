@@ -1,11 +1,14 @@
 import React, { useContext, useState } from 'react';
 import { Button, Col, Container, Form, FormGroup, Nav, Row } from 'react-bootstrap';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import { AuthContext } from './AuthContext';
+import { useToast } from './ToastProvider';
 
 
 export default function RegisterPage() {
+	const navigate = useNavigate();
+	const showToast = useToast();
 	const { login } = useContext(AuthContext);
 	const [username, setUsername] = useState('');
 	const [email, setEmail] = useState('');
@@ -22,8 +25,10 @@ export default function RegisterPage() {
 
 			const { access_token, refresh_token, is_admin } = response.data;
 			login(access_token, refresh_token, is_admin);
-			window.location.href = "/";
+			showToast('Account created successfully.', 'success');
+			navigate('/');
 		} catch (error) {
+			showToast(error, 'danger');
 			console.error(error);
 		}
 	};

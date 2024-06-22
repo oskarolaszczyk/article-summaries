@@ -1,6 +1,7 @@
 import { jsPDF } from "jspdf";
 import { Accordion, Button, Col, Container, Form, Row } from 'react-bootstrap'
 import { useEffect, useState } from 'react'
+import { useToast } from './ToastProvider';
 
 import axiosInstance from '../api/axiosInstance';
 import "../styles/ProfilePanel.css";
@@ -8,6 +9,7 @@ import "../styles/ProfilePanel.css";
 require("../resources/times-normal.js");
 
 export default function ProfilePanel() {
+  const showToast = useToast();
   const [userId, setUserId] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -38,7 +40,7 @@ export default function ProfilePanel() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!oldPassword) {
-      console.error("Provide old password to update your data");
+      showToast("Provide old password to update your data.", "info");
       return;
     }
     const profile_data = {
@@ -49,8 +51,9 @@ export default function ProfilePanel() {
     }
     try {
       const response = await axiosInstance.put(`http://127.0.0.1:5000/account/${userId}`, profile_data);
-      console.log(response.data.message);
+      showToast(response.data.message, 'success');
     } catch (error) {
+      showToast('Error while updating profile data.', 'danger');
       console.error("Error while updating profile data: ", error);
     }
   };
@@ -62,6 +65,7 @@ export default function ProfilePanel() {
         setSummaries(prevSummaries => ({ ...prevSummaries, [articleId]: res.data}));
       })
       .catch(error => {
+        showToast(error, "danger")
         console.error(error)
       });
     }

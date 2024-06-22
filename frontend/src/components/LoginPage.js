@@ -8,11 +8,14 @@ import {
 	Nav,
 	Row,
 } from "react-bootstrap";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
 import { AuthContext } from "./AuthContext";
+import { useToast } from "./ToastProvider";
 
 export default function LoginPage() {
+	const navigate = useNavigate();
+	const showToast = useToast();
 	const { login } = useContext(AuthContext);
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
@@ -24,14 +27,14 @@ export default function LoginPage() {
 				username,
 				password,
 			});
-			
 			const { access_token, refresh_token , is_admin } = response.data;
 			login(access_token, refresh_token, is_admin);
-			window.location.href = "/";
+			showToast('Logged in successfully.', 'success');
+			navigate('/');
 		} catch (error) {
+			showToast(error, 'danger');
 			console.error(error);
 		}
-
 	};
 	
 

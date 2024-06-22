@@ -2,8 +2,10 @@ import { Button, Card, Col, Container, Row, Table } from 'react-bootstrap';
 import { useContext, useEffect, useState } from 'react';
 import axiosInstance from '../api/axiosInstance';
 import { AuthContext } from "./AuthContext";
+import { useToast } from './ToastProvider';
 
 const AdminPanel = () => {
+  const showToast = useToast();
   const { isAdmin } = useContext(AuthContext);
   const [manageUsers, setManageUsers] = useState(false);
   const [showArticles, setShowArticles] = useState(false);
@@ -62,27 +64,33 @@ const AdminPanel = () => {
 
   const handleDeleteUser = async (id) => {
     try {
-      await axiosInstance.delete(`http://127.0.0.1:5000/admin/users/${id}`);
+      const response = await axiosInstance.delete(`http://127.0.0.1:5000/admin/users/${id}`);
       setUsers(users.filter(user => user.id !== id));
+      showToast(response.data.message, 'success');
     } catch (error) {
+      showToast('Error occurred while deleting user.', 'danger');
       console.error('Error deleting user: ', error);
     }
   };
 
   const handleDeleteArticle = async (id) => {
     try {
-      await axiosInstance.delete(`http://127.0.0.1:5000/admin/articles/${id}`);
+      const response = await axiosInstance.delete(`http://127.0.0.1:5000/admin/articles/${id}`);
       setArticles(articles.filter(article => article.id !== id));
+      showToast(response.data.message, 'success');
     } catch (error) {
+      showToast('Error occurred while deleting article.', 'danger');
       console.error('Error deleting article: ', error);
     }
   };
 
   const handleDeleteSummary = async (id) => {
     try {
-      await axiosInstance.delete(`http://127.0.0.1:5000/admin/summaries/${id}`);
+      const response = await axiosInstance.delete(`http://127.0.0.1:5000/admin/summaries/${id}`);
       setSummaries(summaries.filter(summary => summary.id !== id));
+      showToast(response.data.message, 'success');
     } catch (error) {
+      showToast('Error occurred while deleting summary.', 'danger');
       console.error('Error deleting summary: ', error);
     }
   };
