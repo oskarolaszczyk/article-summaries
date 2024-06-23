@@ -15,7 +15,7 @@ account_bp = Blueprint(
 def get_user_articles(user_id):
     user = User.query.get(user_id)
     if not user:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"error": "User not found."}), 404
     
     articles = Article.query.filter_by(user_id=user_id).all()
     articles_list = [
@@ -33,7 +33,7 @@ def get_user_articles(user_id):
 def get_user_summaries(article_id):
     article = Article.query.get(article_id)
     if not article:
-        return jsonify({"error": "Article not found"}), 404
+        return jsonify({"error": "Article not found."}), 404
 
     summaries = Summary.query.filter_by(article_id=article_id).all()
     result = [
@@ -52,7 +52,7 @@ def get_user_summaries(article_id):
 def update_user_data(user_id):
     user = User.query.get(user_id)
     if not user:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"error": "User not found."}), 404
     
     req = request.get_json()
     try:
@@ -65,23 +65,23 @@ def update_user_data(user_id):
     old_password = req.get('old_password')
     
     if not bcrypt.check_password_hash(user.password, old_password):
-        return jsonify({"error": "Wrong password"}), 400
+        return jsonify({"error": "Wrong password."}), 400
     
     username = req.get('username')
     password = req.get('password')
     email = req.get('email')
 
     if len(password) < 8:
-        response_body = {"error": "Make sure your password is at least 8 letters"}
+        response_body = {"error": "Make sure your password is at least 8 characters long."}
         return jsonify(response_body), 400
     elif re.search('[0-9]', password) is None:
-        response_body = {"error": "Make sure your password has number in it"}
+        response_body = {"error": "Make sure your password has number in it."}
         return jsonify(response_body), 400
     elif re.search('[A-Z]', password) is None:
-        response_body = {"error": "Make sure your password has capital letter in it"}
+        response_body = {"error": "Make sure your password has capital letter in it."}
         return jsonify(response_body), 400
     elif not any(not c.isalnum() for c in password):
-        response_body = {"error": "Make sure your password has special character in it"}
+        response_body = {"error": "Make sure your password has special character in it."}
         return jsonify(response_body), 400
 
     if username:

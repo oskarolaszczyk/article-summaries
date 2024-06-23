@@ -28,8 +28,8 @@ export default function RegisterPage() {
 			showToast('Account created successfully.', 'success');
 			navigate('/');
 		} catch (error) {
-			showToast(error, 'danger');
-			console.error(error);
+			showToast(error.response.data.error, 'danger');
+			console.error(error.response.data.error);
 		}
 	};
 

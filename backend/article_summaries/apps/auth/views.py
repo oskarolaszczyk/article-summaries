@@ -27,6 +27,10 @@ def register():
     email = request.json.get("email")
     password = request.json.get("password")
 
+    if not username or not email or not password:
+        response_body = {"error": "No username or email or password provided."}
+        return jsonify(response_body), 400
+
     try:
         emailinfo = validate_email(email, check_deliverability=True)
         email = emailinfo.normalized
@@ -34,21 +38,21 @@ def register():
         response_body = {"error": "Provided email is invalid."}
         return jsonify(response_body), 400
 
-    if not username or not email or not password:
-        response_body = {"error": "No username or email or password provided."}
+    if len(username) < 5:
+        response_body = {"error": "Make sure your username is at least 5 characters long."}
         return jsonify(response_body), 400
-
+    
     if len(password) < 8:
-        response_body = {"error": "Make sure your password is at least 8 letters"}
+        response_body = {"error": "Make sure your password is at least 8 characters long."}
         return jsonify(response_body), 400
     elif re.search('[0-9]', password) is None:
-        response_body = {"error": "Make sure your password has number in it"}
+        response_body = {"error": "Make sure your password has number in it."}
         return jsonify(response_body), 400
     elif re.search('[A-Z]', password) is None:
-        response_body = {"error": "Make sure your password has capital letter in it"}
+        response_body = {"error": "Make sure your password has capital letter in it."}
         return jsonify(response_body), 400
     elif not any(not c.isalnum() for c in password):
-        response_body = {"error": "Make sure your password has special character in it"}
+        response_body = {"error": "Make sure your password has special character in it."}
         return jsonify(response_body), 400
 
     user = User.query.filter_by(username=username).first()
