@@ -17,15 +17,15 @@ def rate_summary(id):
     rating = req.get('rating')
 
     if rating not in [True, False]:
-        return jsonify({"error": "Rating must have value true or false"}), 400
+        return jsonify({"error": "Rating must have value true or false."}), 400
     
     summary = Summary.query.get(id)
     if not summary:
-        return jsonify({"error": "Summary not found"}), 404
+        return jsonify({"error": "Summary not found."}), 404
         
     summary.rating = rating
     db.session.commit()
-    return jsonify({"message": "Rating updated successfully"}), 200
+    return jsonify({"message": "Rating updated successfully."}), 200
 
         
 @summary_bp.route("/generate", methods=['POST'])
@@ -33,17 +33,17 @@ def summarize_endpoint():
     req = request.get_json()
 
     if not 'txt' in req:
-        return jsonify({ "error": "No article content provided" }), 400
+        return jsonify({ "error": "No article content provided." }), 400
     if not 'sentences' in req:
-        return jsonify({ "error": "Number of sentences not provided" }), 400
+        return jsonify({ "error": "Number of sentences not provided." }), 400
 
     if not 'modelType' in req:
-        return jsonify({"error": "Model type not provided"}), 400
+        return jsonify({"error": "Model type not provided."}), 400
 
     try:
         model_type = ModelType[req.get('modelType')]
     except KeyError:
-        return jsonify({"error": "Invalid summarization model"}), 400
+        return jsonify({"error": "Invalid summarization model."}), 400
     if model_type == ModelType.TF_IDF:
         summary = wadim_summarize(req['txt'], int(req['sentences']))
     elif model_type == ModelType.LSA:
@@ -62,9 +62,14 @@ def add_summary():
     content = data.get("content")
     rating = data.get("rating")
     model_type = data.get("model_type")
-    if not article_id or not content or not model_type:
-        return jsonify({"error": "Missing article ID, summary content or used model type"}), 400
     
+    if not article_id or not content or not model_type:
+        return jsonify({"error": "Missing article ID, summary content or used model type."}), 400
+    
+    existing_summary = Summary.query.filter_by(content=content, model_type=model_type, article_id=article_id).first()
+    if existing_summary:
+        return jsonify({"error": "Summary with the given content and model type already exists."}), 400
+
     summary = Summary(
         article_id=article_id,
         content=content,
@@ -75,4 +80,4 @@ def add_summary():
     db.session.add(summary)
     db.session.commit()
 
-    return jsonify({"message": "Successfully added"}), 201
+    return jsonify({"message": "Summary was saved successfully."}), 201

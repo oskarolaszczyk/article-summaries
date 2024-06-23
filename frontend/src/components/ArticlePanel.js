@@ -58,7 +58,7 @@ const ArticlePanel = () => {
         }
     };
 
-    const generateSummary = async (articleText) => {
+    const generateSummary = async (articleText, regenerate) => {
         try {
             let response;
             let res;
@@ -86,7 +86,9 @@ const ArticlePanel = () => {
                     modelType: selectedModel
                 });
                 res = await response.data.summary;
-                res = res.split(".").sort(() => 0.5 - Math.random()).slice(0, numSentences).join(". ");
+                if (regenerate) {
+                    res = res.split(".").sort(() => 0.5 - Math.random()).slice(0, numSentences).join(". ");
+                }
             }
             setGeneratedSummary(res || "Summary could not be generated.");
 
@@ -104,7 +106,7 @@ const ArticlePanel = () => {
         const data = await fetchArticleContent();
         setArticleData(data);
         if (data) {
-            await generateSummary(data.content);
+            await generateSummary(data.content, false);
             setArticleTitle(data.title);
         }
         setIsGenerating(false);
@@ -129,12 +131,12 @@ const ArticlePanel = () => {
                 await axiosInstance.post('http://127.0.0.1:5000/summary/', summary);
                 showToast('Summary saved successfully.', 'success');
             } catch (error) {
-                showToast('There was an error while saving the summary', 'danger');
-                console.error("There was an error while saving the summary!", error);
+                showToast(error.response.data.error, 'danger');
+                console.error(error.response.data.error, error);
             }
         } catch (error) {
-            showToast('There was an error while saving the article', 'danger');
-            console.error("There was an error while saving the article!", error);
+            showToast(error.response.data.error, 'danger');
+            console.error(error.response.data.error, error);
         }   
     };
 
@@ -143,7 +145,7 @@ const ArticlePanel = () => {
         setGeneratedSummary("");
         setIsGenerating(true);
         if(articleData) {
-            await generateSummary(articleData.content);
+            await generateSummary(articleData.content, true);
             setArticleTitle(articleData.title);
         }
         setIsGenerating(false);

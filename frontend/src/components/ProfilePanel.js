@@ -65,7 +65,7 @@ export default function ProfilePanel() {
         setSummaries(prevSummaries => ({ ...prevSummaries, [articleId]: res.data}));
       })
       .catch(error => {
-        showToast(error, "danger")
+        showToast(error.response.data.error, "danger")
         console.error(error)
       });
     }
