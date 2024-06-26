@@ -4,15 +4,19 @@ import { useEffect, useState } from 'react';
 import "../styles/ArticlePanel.css";
 import { Button, ButtonGroup, Card, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import { AiFillLike, AiFillDislike } from "react-icons/ai";
+import { IoIosRefresh } from "react-icons/io";
 import axiosInstance from '../api/axiosInstance.js'
+import { useToast } from './ToastProvider.js';
 
 require("../resources/times-normal.js");
 
 
 const ArticlePanel = () => {
+    const showToast = useToast();
     const [articleUrl, setArticleUrl] = useState('');
-    const [selectedModel, setSelectedModel] = useState('2');
+    const [selectedModel, setSelectedModel] = useState('TF_IDF');
     const [articleTitle, setArticleTitle] = useState('Summary');
+    const [articleData, setArticleData] = useState('');
     const [generatedSummary, setGeneratedSummary] = useState('');
     const [numSentences, setNumSentences] = useState(10);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -49,14 +53,17 @@ const ArticlePanel = () => {
             const data = response.data
             return data;
         } catch (error) {
+            showToast('Error fetching article content.', 'danger');
             console.error('Error fetching article content: ', error);
         }
     };
 
-    const generateSummary = async (articleText) => {
+    const generateSummary = async (articleText, regenerate) => {
         try {
             let response;
-            if (selectedModel === "1") {
+            let res;
+            const extraSentences = 5;
+            if (selectedModel === "MEANINGCLOUD") {
                 const formdata = new FormData();
                 formdata.append("key", "86794c53debf6b6a67eaf2a93580afd1");
                 formdata.append("txt", articleText);
@@ -68,21 +75,26 @@ const ArticlePanel = () => {
                     txt: articleText,
                     sentences: numSentences
                 });
+                res = await response.data.summary;
             } else {
                 response = await axios.post("http://127.0.0.1:5000/summary/generate", {
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     txt: articleText,
-                    sentences: numSentences
+                    sentences: numSentences + extraSentences,
+                    modelType: selectedModel
                 });
+                res = await response.data.summary;
+                if (regenerate) {
+                    res = res.split(".").sort(() => 0.5 - Math.random()).slice(0, numSentences).join(". ");
+                }
             }
-            const res = await response.data;
-            setGeneratedSummary(res.summary || "Summary could not be generated.");
+            setGeneratedSummary(res || "Summary could not be generated.");
 
         } catch (error) {
-            console.error('Error generating summary:', error);
-            setGeneratedSummary("Error generating summary.");
+            showToast('Error occurred while generating summary', 'danger');
+            console.error('Error occurred while generating summary:', error);
         }
     }
 
@@ -91,10 +103,11 @@ const ArticlePanel = () => {
         setArticleTitle("");
         setGeneratedSummary("");
         setIsGenerating(true);
-        const articleData = await fetchArticleContent();
-        if (articleData) {
-            await generateSummary(articleData.content);
-            setArticleTitle(articleData.title);
+        const data = await fetchArticleContent();
+        setArticleData(data);
+        if (data) {
+            await generateSummary(data.content, false);
+            setArticleTitle(data.title);
         }
         setIsGenerating(false);
     };
@@ -108,22 +121,34 @@ const ArticlePanel = () => {
 
         try {
             const response = await axiosInstance.post('http://127.0.0.1:5000/article/', article);
-            console.log(response.data.message);
             const summary = {
                 article_id: response.data.article_id,
                 content: generatedSummary,
                 rating: rating,
-                model_type: selectedModel === '1' ? 'MEANINGCLOUD' : 'OUR_MODEL',
+                model_type: selectedModel,
             }
             try {
-                const res = await axiosInstance.post('http://127.0.0.1:5000/summary/', summary);
-                console.log(res.data.message);
+                await axiosInstance.post('http://127.0.0.1:5000/summary/', summary);
+                showToast('Summary saved successfully.', 'success');
             } catch (error) {
-                console.error("There was an error while saving the summary!", error);
+                showToast(error.response.data.error, 'danger');
+                console.error(error.response.data.error, error);
             }
         } catch (error) {
-            console.error("There was an error while saving the article!", error);
+            showToast(error.response.data.error, 'danger');
+            console.error(error.response.data.error, error);
         }   
+    };
+
+    const handleRegenerate = async () => {
+        setArticleTitle("");
+        setGeneratedSummary("");
+        setIsGenerating(true);
+        if(articleData) {
+            await generateSummary(articleData.content, true);
+            setArticleTitle(articleData.title);
+        }
+        setIsGenerating(false);
     };
 
     return (
@@ -149,8 +174,10 @@ const ArticlePanel = () => {
                                     onChange={handleModelChange}
                                 >
                                     <option>Open this select menu</option>
-                                    <option value="1">Meaninig Cloud model</option>
-                                    <option value="2">Our model</option>
+                                    <option value="MEANINGCLOUD">Meaninig Cloud model</option>
+                                    <option value="TF_IDF">tf-idf</option>
+                                    <option value="LSA">LSA</option>
+                                    <option value="LUHN">LUHN</option>
                                 </Form.Select>
                             </Form.Group>
                             <Form.Group className="my-4">
@@ -192,6 +219,9 @@ const ArticlePanel = () => {
                                 </Button>
                                 <Button className="me-1" disabled={generatedSummary === ''} onClick={() => {setRating(false)}}>
                                     <AiFillDislike />
+                                </Button>
+                                <Button className="me-1" disabled={generatedSummary === ''} onClick={handleRegenerate}>
+                                    <IoIosRefresh />
                                 </Button>
                             </ButtonGroup>
                             <Button disabled={rating === null} onClick={saveSummary} className="ms-auto">

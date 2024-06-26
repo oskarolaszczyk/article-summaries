@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Nav, Navbar } from 'react-bootstrap';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import generateLogo from "../resources/generate.svg";
 import logiInLogo from "../resources/logIn.svg";
@@ -8,15 +8,20 @@ import logo from "../resources/logo.svg";
 import profileLogo from "../resources/profile.svg";
 import "../styles/AppNavbar.css";
 import { AuthContext } from "./AuthContext";
+import { useToast } from "./ToastProvider";
 
 export default function AppNavbar() {
+  const navigate = useNavigate();
+  const showToast = useToast();
   const { isLoggedIn, isAdmin, logout } = useContext(AuthContext);
   const handleLogout = async () => {
     try {
 			await axiosInstance.post("/auth/logout");
       logout();
-      window.location.href = '/login';
+      showToast('Logged out successfully.', 'success');
+      navigate('/login');
 		} catch (error) {
+      showToast(error, 'danger');
 			console.error(error);
 		}
 

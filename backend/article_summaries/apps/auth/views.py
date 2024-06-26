@@ -7,16 +7,19 @@ from flask_jwt_extended import (
     get_jwt,
     # unset_jwt_cookies,
 )
+import re
 from article_summaries.models import db, User, UserType
 from article_summaries import bcrypt
 from sqlalchemy import or_
 from flask_jwt_extended import current_user
 from article_summaries.apps.auth.blocklist import BLOCKLIST
+from email_validator import validate_email, EmailNotValidError
 
 auth_bp = Blueprint(
     "auth_bp", __name__, template_folder="templates", static_folder="static"
 )
 
+    
 
 @auth_bp.route("/register", methods=["POST"])
 def register():
@@ -26,6 +29,30 @@ def register():
 
     if not username or not email or not password:
         response_body = {"error": "No username or email or password provided."}
+        return jsonify(response_body), 400
+
+    try:
+        emailinfo = validate_email(email, check_deliverability=True)
+        email = emailinfo.normalized
+    except EmailNotValidError as e:
+        response_body = {"error": "Provided email is invalid."}
+        return jsonify(response_body), 400
+
+    if len(username) < 5:
+        response_body = {"error": "Make sure your username is at least 5 characters long."}
+        return jsonify(response_body), 400
+    
+    if len(password) < 8:
+        response_body = {"error": "Make sure your password is at least 8 characters long."}
+        return jsonify(response_body), 400
+    elif re.search('[0-9]', password) is None:
+        response_body = {"error": "Make sure your password has number in it."}
+        return jsonify(response_body), 400
+    elif re.search('[A-Z]', password) is None:
+        response_body = {"error": "Make sure your password has capital letter in it."}
+        return jsonify(response_body), 400
+    elif not any(not c.isalnum() for c in password):
+        response_body = {"error": "Make sure your password has special character in it."}
         return jsonify(response_body), 400
 
     user = User.query.filter_by(username=username).first()
@@ -57,6 +84,7 @@ def register():
 def login():
     username = request.json.get("username")
     password = request.json.get("password")
+    
 
     if not username or not password:
         response_body = {"error": "No username or email or password provided."}
@@ -65,13 +93,9 @@ def login():
     user = User.query.filter(
         or_(User.username == username, User.email == username)
     ).first()
-    if not user:
-        response_body = {"error": "User with given credentials does not exist."}
-        return jsonify(response_body), 404
-
-    if not bcrypt.check_password_hash(user.password, password):
+    if not user or not bcrypt.check_password_hash(user.password, password):
         response_body = {"error": "Please check your login details and try again."}
-        return jsonify(response_body), 401
+        return jsonify(response_body), 404
 
     access_token = create_access_token(identity=user.id, fresh=True)
     refresh_token = create_refresh_token(identity=user.id)
@@ -107,3 +131,18 @@ def logout():
 @jwt_required()
 def protected():
     return jsonify({"message": "Access to protected endpoint."}), 200
+
+
+@auth_bp.route("/who-am-i", methods=["GET"])
+@jwt_required()
+def who_am_i():
+    return (
+        jsonify(
+            id=current_user.id,
+            username=current_user.username,
+            email=current_user.email,
+            type=current_user.type.name,
+            created_on=current_user.created_on,
+        ),
+        200,
+    )

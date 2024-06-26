@@ -17,7 +17,6 @@ const AuthProvider = ({ children }) => {
   const [refreshToken, setRefreshToken] = useState(null);
 
   useEffect(() => {
-    // When the application starts, we check whether authentication data exists in localStorage
     const storedAccessToken = localStorage.getItem('accessToken');
     const storedRefreshToken = localStorage.getItem('refreshToken');
     const storedIsAdmin = localStorage.getItem('isAdmin');
